@@ -5,6 +5,11 @@ import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 import {Registry} from "../src/challenge1.sol";
 
+/**
+ * @title Register Test
+ * @author kwame4b
+ * @notice A test for the register contract
+ */
 contract challenge1test is Test{
     Registry reg;
 
@@ -13,6 +18,9 @@ contract challenge1test is Test{
         deal(address(0xabc),type(uint256).max);
     }
 
+    /**
+     * Testing the normal functioning of the register function
+     */
     function testRegister() public {
         vm.prank(address(0xabc));
         reg.register{value: 1e18}();
@@ -20,6 +28,9 @@ contract challenge1test is Test{
         assertTrue(reg.isRegistered(address(0xabc)));
     }
 
+    /**
+     * Testing to see whether it reverts when conditions are not met
+     */
     function testRevertRegister() public {
         vm.prank(address(0xabc));
         vm.expectRevert();
@@ -28,6 +39,12 @@ contract challenge1test is Test{
         assertFalse(reg.isRegistered(address(0xabc)));
     }
 
+    /**
+     * From the fuzz Test I discovered that:
+     * whenever the fees are over sent it does not refund as intended
+     * It Inflates the Register contract balance 
+     * & Ether becomes stuck because there is no way to transfer it back.
+     */
     function testFeeOverSent() public {
         vm.prank(address(0xabc));
 
@@ -40,6 +57,11 @@ contract challenge1test is Test{
         assertTrue(reg.isRegistered(address(0xabc)));
     }
 
+    /**
+     * Solution to the challenge1
+     * Fuzzing the amount parameter to find edge cases
+     * @param amount the  parameter to fuzz
+     */
     function testFuzzRegister(uint256 amount) public {
         vm.assume(amount > 1e18 && amount < type(uint128).max);
 
