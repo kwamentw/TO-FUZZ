@@ -60,10 +60,11 @@ contract challenge1test is Test{
     /**
      * Solution to the challenge1
      * Fuzzing the amount parameter to find edge cases
+     * Bug is explained in `testFeeOverSent`
      * @param amount the  parameter to fuzz
      */
     function testFuzzRegister(uint256 amount) public {
-        vm.assume(amount > 1e18 && amount < type(uint128).max);
+        amount = bound(amount,1e18,type(uint128).max);
 
         uint256 bal1 = address(0xabc).balance;
 
