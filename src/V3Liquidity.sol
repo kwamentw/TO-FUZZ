@@ -13,6 +13,11 @@ interface IERC721Receiver {
     ) external returns (bytes4);
 }
 
+/**
+ * @title UniswapV3Liquidity
+ * @author Solidity by example
+ * @notice link - https://solidity-by-example.org/defi/uniswap-v3-liquidity/
+ */
 contract UniswapV3Liquidity is IERC721Receiver {
     IERC20 private constant dai = IERC20(DAI);
     IWETH private constant weth = IWETH(WETH);
