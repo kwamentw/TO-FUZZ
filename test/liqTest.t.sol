@@ -17,4 +17,16 @@ contract LiquidityTest is Test {
     function testMintPosition() external {
         // liqui.mintNewPosition();
     }
+
+    function testCollectAllFees() public {
+
+    }
+
+    function testincreaseLiquidityCurrentRange() public {
+
+    }
+
+    function testDecreaseLiquidityCurrentRange() public {}
+
+    
 }
