@@ -43,4 +43,28 @@ contract UniV3SwapTest is StdCheats, Test{
         assertEq(vm.activeFork(),mainnetFork);
     }
 
+    /**
+     * Trying Uniswap single hop swap
+     */
+    function testSingleHop() public {
+        weth.deposit{value:2e18}();
+        weth.approve(address(uni),2e18);
+
+        uint256 amountOut = uni.swapExactInputSingleHop(WETH,DAI,3000,1e18);
+        console2.log("DAI is: ",amountOut );
+    }
+
+    /**
+     * Trying uniswap multi hop swap
+     */
+    function testMultiHop() public {
+        weth.deposit{value: 1e18}();
+        weth.approve(address(uni),1e18);
+
+        bytes memory path = abi.encodePacked(WETH, uint24(3000),USDC,uint24(100), DAI);
+        uint256 amountOut = uni.swapExactInputMultiHop(path,WETH,1e18);
+
+        console2.log("DAI amount is: ",amountOut);
+    }
+
 }
