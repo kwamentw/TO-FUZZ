@@ -52,6 +52,7 @@ contract UniV3SwapTest is StdCheats, Test{
 
         uint256 amountOut = uni.swapExactInputSingleHop(WETH,DAI,3000,1e18);
         console2.log("DAI is: ",amountOut );
+        assertGt(amountOut,1e18);
     }
 
     /**
@@ -65,6 +66,7 @@ contract UniV3SwapTest is StdCheats, Test{
         uint256 amountOut = uni.swapExactInputMultiHop(path,WETH,1e18);
 
         console2.log("DAI amount is: ",amountOut);
+        assertGt(amountOut,1e18);
     }
 
 }
