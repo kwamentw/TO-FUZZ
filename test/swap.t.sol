@@ -47,12 +47,60 @@ contract UniV3SwapTest is StdCheats, Test{
      * Trying Uniswap single hop swap
      */
     function testSingleHop() public {
+        weth.deposit{value:1e18}();
+        weth.approve(address(uni),1e18);
+
+        uint256 amountOut = uni.swapExactInputSingleHop(WETH,DAI,3000,1e18);
+        uint256 daiBalance = dai.balanceOf(address(this));
+        console2.log("DAI is: ",daiBalance);
+        assertGt(amountOut,1e18);
+        assertEq(amountOut,daiBalance);
+    }
+
+    function testSingleHopSwapbackToEth() public {
+        // depossit and approve the router
         weth.deposit{value:2e18}();
         weth.approve(address(uni),2e18);
 
+        // swapping to DAI
         uint256 amountOut = uni.swapExactInputSingleHop(WETH,DAI,3000,1e18);
-        console2.log("DAI is: ",amountOut );
-        assertGt(amountOut,1e18);
+        uint256 daiBalance = dai.balanceOf(address(this));
+        console2.log("DAI is: ",daiBalance/1e18); // we divide to get the actual amount in USD
+
+        //swapping back to ETH to see whether we get same amount
+        uint256 amountToswapBackinDai = amountOut;
+        dai.approve(address(uni),amountToswapBackinDai);
+        uint256 amountOut2 = uni.swapExactInputSingleHop(DAI,WETH,3000,amountToswapBackinDai);
+        uint256 wethBalance = amountOut2;
+        console2.log("return WETH is: ", amountOut2);
+
+        //checking the validity of the swap
+        assertGe(amountOut2,9.9e17); // we didnt get exactly 1 ether i'm sure its because of the fee on the swap 
+        assertEq(daiBalance,amountOut);
+        assertGt(wethBalance,0);
+        assertGt(daiBalance,0);
+    }
+
+    function testSameTokenSwap() public {
+        // deposit and approve router 
+        weth.deposit{value: 1e18}();
+        weth.approve(address(uni),1e18);
+
+        //swapping to usdc
+        uint256 amountOut = uni.swapExactInputSingleHop(WETH,USDC,3000,1e18);
+        uint256 usdcBalance = usdc.balanceOf(address(this));
+        console2.log("USDC is: ", usdcBalance);
+
+        //swapping from usdc to usdc again | haha wanna see what happens!
+        uint256 amountToSwapBack = amountOut;
+        usdc.approve(address(uni),amountToSwapBack);
+        uint256 amountOut2 = uni.swapExactInputSingleHop(USDC,USDC,3000,1e18);
+        console2.log("Second swap USDC is: ", amountOut2);
+
+        assertGt(usdcBalance,0);
+        assertEq(amountOut,amountOut2);
+
+        //it ran into an error: `FAIL. Reason: backend: failed while inspecting`
     }
 
     /**
