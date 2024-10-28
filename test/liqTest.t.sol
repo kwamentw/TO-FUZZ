@@ -17,17 +17,22 @@ contract LiquidityTest is Test {
 
     uint256 private mainnetFork;
 
+   //setup
     function setUp() public {
         liqui = new UniswapV3Liquidity();
 
         mainnetFork = vm.createSelectFork({urlOrAlias: vm.envString("MAINNET_FORK_URL")});
     }
 
+   // test the fork environment to see if we up
     function testCanSelectForkE() public {
         vm.selectFork(mainnetFork);
         assertEq(vm.activeFork(),mainnetFork);
     }
 
+    /**
+     * Testing to see whether deposit Dai is working
+     */
     function testDepositDai() public {
         address figo = address(0xabc);
         uint256 balaBefore = dai.balanceOf(figo);
@@ -36,16 +41,33 @@ contract LiquidityTest is Test {
         assertEq(balaAfter,10e18);
     }
 
+    /**
+     * Minting a new position(Test)
+     */
     function testMintNewPosition() public {
         weth.deposit{value: 10e18}();
         weth.approve(address(liqui),10e18);
-        
+
         deal(address(dai), address(this), 100e18, true);
         dai.approve(address(liqui),100e18);
 
         (uint256 tokenId,uint128 liquidity, uint256 amount0, uint256 amount1)=liqui.mintNewPosition(1e18,1e18);
 
+        assertGt(amount0,0);
+        assertGt(amount1,0);
+        assertGt(liquidity,0);
+
+
         vm.stopPrank();
+    }
+
+    /**
+     * Collect all fees from an existing position(Test)
+     */
+    function testCollectAllFees() public {
+        // first have to make sure  that there is a position to collect fees from
+            // this means we have to create a new position
+        // then call collectAllFees
     }
 
 }
