@@ -35,10 +35,19 @@ contract LiquidityTest is Test {
      */
     function testDepositDai() public {
         address figo = address(0xabc);
-        uint256 balaBefore = dai.balanceOf(figo);
         deal(address(dai), figo, 10e18,true);
         uint256 balaAfter = dai.balanceOf(figo);
         assertEq(balaAfter,10e18);
+    }
+
+    function mintNewPosition() public returns(uint256 tokenId){
+         weth.deposit{value: 10e18}();
+        weth.approve(address(liqui),10e18);
+
+        deal(address(dai), address(this), 100e18, true);
+        dai.approve(address(liqui),100e18);
+
+        ( tokenId,,,)=liqui.mintNewPosition(10e18,10e18);
     }
 
     /**
@@ -65,6 +74,10 @@ contract LiquidityTest is Test {
      * Collect all fees from an existing position(Test)
      */
     function testCollectAllFees() public {
+        uint256 tokenId = mintNewPosition();
+
+        (uint256 amount0, uint256 amount1)=liqui.collectAllFees(tokenId);
+
         // first have to make sure  that there is a position to collect fees from
             // this means we have to create a new position
         // then call collectAllFees
