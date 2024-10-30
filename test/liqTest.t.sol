@@ -41,13 +41,13 @@ contract LiquidityTest is Test {
     }
 
     function mintNewPosition() public returns(uint256 tokenId){
-         weth.deposit{value: 10e18}();
-        weth.approve(address(liqui),10e18);
+         weth.deposit{value: 50e18}();
+        weth.approve(address(liqui),50e18);
 
-        deal(address(dai), address(this), 100e18, true);
-        dai.approve(address(liqui),100e18);
+        deal(address(dai), address(this), 50e18, true);
+        dai.approve(address(liqui),50e18);
 
-        ( tokenId,,,)=liqui.mintNewPosition(10e18,10e18);
+        ( tokenId,,,)=liqui.mintNewPosition(50e18,50e18);
     }
 
     /**
@@ -78,9 +78,56 @@ contract LiquidityTest is Test {
 
         (uint256 amount0, uint256 amount1)=liqui.collectAllFees(tokenId);
 
-        // first have to make sure  that there is a position to collect fees from
-            // this means we have to create a new position
-        // then call collectAllFees
+        // it is a newly opened position, I dont't think there will be any fees to take
+
+        assertEq(amount0,0);
+        assertEq(amount1,0);
+    }
+
+    /**
+     * Testing increase liquidity
+     */
+    function testIncreaseLiquidity() public {
+        uint256 tokenId = mintNewPosition();
+
+        weth.deposit{value: 30e18}();
+        weth.approve(address(liqui),15e18);
+
+        deal(address(dai), address(this), 30e18);
+        bool okay = dai.approve(address(liqui),15e18);
+        require(okay,"approve failed");
+
+        (uint128 liquidity, uint256 amount0, uint256 amount1)=liqui.increaseLiquidityCurrentRange(tokenId,15e18,15e18);
+
+        assertGt(liquidity,0);
+        assertGt(amount0,0);
+        assertGt(amount1,0);
+    }
+
+    /**
+     * Testing decrease liquidity
+     * we create, increase then decrease.
+     */
+    function testDecreaseLiquidity() public {
+        // creating a position
+        uint256 tokenId = mintNewPosition();
+
+        // weth deposit & approval
+        weth.deposit{value: 15e18}();
+        weth.approve(address(liqui),15e18);
+
+        //dai deposit & approval
+        deal(address(dai),address(this),15e18);
+        bool okay = dai.approve(address(liqui),15e18);
+        require(okay);
+
+        (,uint256 amountA,uint256 amountB)=liqui.increaseLiquidityCurrentRange(tokenId,15e18,15e18);
+        (uint256 amount0, uint256 amount1)= liqui.decreaseLiquidityCurrentRange(tokenId,1.93e17);
+
+        //assertions 
+        assertLt(amount0,amountA);
+        assertLt(amount1,amountB);
+
     }
 
 }
