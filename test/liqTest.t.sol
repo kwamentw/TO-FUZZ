@@ -6,6 +6,11 @@ import {console2} from "forge-std/console2.sol";
 import {IWETH, IERC20} from "../src/V3Liquidity.sol";
 import {UniswapV3Liquidity} from "../src/V3Liquidity.sol";
 
+/**
+ * @title uniswapv3 liquidity test
+ * @author test by 4b
+ * @notice tinkering with stuff nothing too serious
+ */
 contract LiquidityTest is Test {
     UniswapV3Liquidity liqui;
 
@@ -15,11 +20,14 @@ contract LiquidityTest is Test {
     IWETH private weth = IWETH(WETH);
     IERC20 private dai = IERC20(DAI);
 
+    uint256 _deadline;
+
     uint256 private mainnetFork;
 
    //setup
     function setUp() public {
         liqui = new UniswapV3Liquidity();
+         _deadline = block.timestamp + 5;
 
         mainnetFork = vm.createSelectFork({urlOrAlias: vm.envString("MAINNET_FORK_URL")});
     }
@@ -47,7 +55,7 @@ contract LiquidityTest is Test {
         deal(address(dai), address(this), 50e18, true);
         dai.approve(address(liqui),50e18);
 
-        ( tokenId,,,)=liqui.mintNewPosition(50e18,50e18);
+        ( tokenId,,,)=liqui.mintNewPosition(50e18,50e18,block.timestamp);
     }
 
     /**
@@ -60,14 +68,28 @@ contract LiquidityTest is Test {
         deal(address(dai), address(this), 100e18, true);
         dai.approve(address(liqui),100e18);
 
-        (uint256 tokenId,uint128 liquidity, uint256 amount0, uint256 amount1)=liqui.mintNewPosition(1e18,1e18);
+        (uint256 tokenId,uint128 liquidity, uint256 amount0, uint256 amount1)=liqui.mintNewPosition(1e18,1e18,block.timestamp);
 
         assertGt(amount0,0);
         assertGt(amount1,0);
         assertGt(liquidity,0);
 
+        console2.log("tokenId: ",tokenId);
+
 
         vm.stopPrank();
+    }
+
+    function testRevertDeadlineOldNewPosition() public {
+        weth.deposit{value: 5e18}();
+        weth.approve(address(liqui),5e18);
+
+        deal(address(dai), address(this), 5e18,true);
+        dai.approve(address(liqui),5e18);
+
+        vm.expectRevert();
+
+        (,uint256 liquidity,,) = liqui.mintNewPosition(5e18,5e18,_deadline);
     }
 
     /**
