@@ -27,6 +27,7 @@ contract LiquidityTest is Test {
    //setup
     function setUp() public {
         liqui = new UniswapV3Liquidity();
+        // timeline for deadline
          _deadline = block.timestamp + 5;
 
         mainnetFork = vm.createSelectFork({urlOrAlias: vm.envString("MAINNET_FORK_URL")});
@@ -55,7 +56,7 @@ contract LiquidityTest is Test {
         deal(address(dai), address(this), 50e18, true);
         dai.approve(address(liqui),50e18);
 
-        ( tokenId,,,)=liqui.mintNewPosition(50e18,50e18,block.timestamp);
+        ( tokenId,,,)=liqui.mintNewPosition(50e18,50e18,block.timestamp,0,0);
     }
 
     /**
@@ -68,7 +69,7 @@ contract LiquidityTest is Test {
         deal(address(dai), address(this), 100e18, true);
         dai.approve(address(liqui),100e18);
 
-        (uint256 tokenId,uint128 liquidity, uint256 amount0, uint256 amount1)=liqui.mintNewPosition(1e18,1e18,block.timestamp);
+        (uint256 tokenId,uint128 liquidity, uint256 amount0, uint256 amount1)=liqui.mintNewPosition(1e18,1e18,block.timestamp,0,0);
 
         assertGt(amount0,0);
         assertGt(amount1,0);
@@ -80,6 +81,9 @@ contract LiquidityTest is Test {
         vm.stopPrank();
     }
 
+    /**
+     * Test to check whether uniswap reverts when dealine is reaches
+     */
     function testRevertDeadlineOldNewPosition() public {
         weth.deposit{value: 5e18}();
         weth.approve(address(liqui),5e18);
@@ -89,7 +93,27 @@ contract LiquidityTest is Test {
 
         vm.expectRevert();
 
-        (,uint256 liquidity,,) = liqui.mintNewPosition(5e18,5e18,_deadline);
+        (,uint256 liquidity,,) = liqui.mintNewPosition(5e18,5e18,_deadline,0,0);
+
+        assertGt(liquidity,0);
+    }
+
+    /**
+     * Testing whether slippage check works and will revert when the minimum requirement is not met 
+     */
+    function testRevertSlippageCheck() public {
+        weth.deposit{value: 5e18}();
+        weth.approve(address(liqui),5e18);
+
+        deal(address(dai), address(this), 5e18, true);
+        dai.approve(address(liqui),5e18);
+
+        vm.expectRevert();
+        uint256 amount0min = 1e18;
+        uint256 amount1min =1e18;
+        (,uint256 liquidity,,)= liqui.mintNewPosition(5e18,5e18,block.timestamp,amount0min, amount1min);
+
+        assertGt(liquidity,0);
     }
 
     /**

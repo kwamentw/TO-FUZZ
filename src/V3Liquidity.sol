@@ -38,7 +38,7 @@ contract UniswapV3Liquidity is IERC721Receiver {
         return IERC721Receiver.onERC721Received.selector;
     }
 
-    function mintNewPosition(uint256 amount0ToAdd, uint256 amount1ToAdd, uint256 deadline)
+    function mintNewPosition(uint256 amount0ToAdd, uint256 amount1ToAdd, uint256 deadline, uint256 amount0min, uint256 amount1min)
         external
         returns (
             uint256 tokenId,
@@ -62,8 +62,8 @@ contract UniswapV3Liquidity is IERC721Receiver {
             tickUpper: (MAX_TICK / TICK_SPACING) * TICK_SPACING,
             amount0Desired: amount0ToAdd,
             amount1Desired: amount1ToAdd,
-            amount0Min: 0,
-            amount1Min: 0,
+            amount0Min: amount0min,
+            amount1Min: amount1min,
             recipient: address(this),
             deadline: deadline
         });
