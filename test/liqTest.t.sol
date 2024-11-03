@@ -115,6 +115,24 @@ contract LiquidityTest is Test {
 
         assertGt(liquidity,0);
     }
+    /**
+     * Testing whether amountMin passes 
+     */
+    function testAmountMinPassCheck() public{
+        weth.deposit{value: 5e18}();
+        weth.approve(address(liqui),5e18);
+
+        deal(address(dai), address(this), 5e18, true);
+        dai.approve(address(liqui), 5e18);
+
+        //minimum amount that will be accepted in swaps
+        uint256 amount0min = 2e6;
+        uint256 amount1min = 2e6;
+
+        (,uint256 liquidity,,)=liqui.mintNewPosition(5e18,5e18,block.timestamp,amount0min, amount1min);
+
+        assertGt(liquidity,0);
+    }
 
     /**
      * Collect all fees from an existing position(Test)
