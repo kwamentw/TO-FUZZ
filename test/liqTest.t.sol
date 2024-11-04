@@ -24,7 +24,7 @@ contract LiquidityTest is Test {
 
     uint256 private mainnetFork;
 
-   //setup
+   //setting up test
     function setUp() public {
         liqui = new UniswapV3Liquidity();
         // timeline for deadline
@@ -49,10 +49,16 @@ contract LiquidityTest is Test {
         assertEq(balaAfter,10e18);
     }
 
+    /**
+     * minting a new position
+     * this will be a helper in testing other functionalities
+     */
     function mintNewPosition() public returns(uint256 tokenId){
-         weth.deposit{value: 50e18}();
+        // funding and approving the uniswap contract 
+        weth.deposit{value: 50e18}();
         weth.approve(address(liqui),50e18);
 
+        //DAI funding and approval to uniswap contract
         deal(address(dai), address(this), 50e18, true);
         dai.approve(address(liqui),50e18);
 
@@ -71,6 +77,7 @@ contract LiquidityTest is Test {
 
         (uint256 tokenId,uint128 liquidity, uint256 amount0, uint256 amount1)=liqui.mintNewPosition(1e18,1e18,block.timestamp,0,0);
 
+        //checking whether minting was successful
         assertGt(amount0,0);
         assertGt(amount1,0);
         assertGt(liquidity,0);
@@ -91,7 +98,7 @@ contract LiquidityTest is Test {
         deal(address(dai), address(this), 5e18,true);
         dai.approve(address(liqui),5e18);
 
-        vm.expectRevert();
+        vm.expectRevert(); // expecting a revert because dealine is reached
 
         (,uint256 liquidity,,) = liqui.mintNewPosition(5e18,5e18,_deadline,0,0);
 
