@@ -28,15 +28,48 @@ contract  CPAMMTest is Test {
         assertEq(vm.activeFork(),mainnetFork);
     }
 
-    function testSwapCPAMM() public{
-        weth.deposit{value:20e18}();
+    function addLiquidityC() public {
+        weth.deposit{value: 100e18}();
+        weth.approve(address(cpamm),100e18);
+
+        deal(DAI, address(this), 100e18,true);
+        dai.approve(address(cpamm),100e18);
+
+        cpamm.addLiquidity(100e18,100e18);
+    }
+
+    function testAddLiquidityC() public {
+        weth.deposit{value: 20e18}();
         weth.approve(address(cpamm),20e18);
 
         deal(DAI, address(this), 20e18, true);
         dai.approve(address(cpamm), 20e18);
+        
+        uint256 sharesAdded = cpamm.addLiquidity(20e18,20e18);
+
+        assertGt(sharesAdded,0);
+    }
+
+    function testSwapCPAMM() public{
+        addLiquidityC();
+
+        weth.deposit{value: 30e18}();
+        weth.approve(address(cpamm),30e18);
+
+        deal(DAI,address(this), 30e18);
+        dai.approve(address(cpamm), 30e18);
 
         uint256 amountOut = cpamm.swap(WETH,19e18);
         assertGt(amountOut,0);
         
-    }// i think we have to add liquidity before 
+    }
+
+    function testRemoveLiquidityC() public {
+        addLiquidityC();
+
+        (uint256 amount0, uint256 amount1)=cpamm.removeLiquidity(65e18);
+
+        assertEq(amount0, 65e18);
+        assertEq(amount1, 65e18);
+    }
 }
