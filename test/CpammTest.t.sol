@@ -6,9 +6,15 @@ import {CPAMM} from "../src/CPAMM.sol";
 import {console2} from "forge-std/console2.sol";
 import {IERC20, IWETH} from "../src/CPAMM.sol";
 
+/**
+ * @title CPAMM test
+ * @author 4b
+ * @notice Testing CPAMM the basic way
+ */
 contract  CPAMMTest is Test {
     CPAMM public cpamm;
 
+    //tokens used 
     address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
@@ -23,11 +29,17 @@ contract  CPAMMTest is Test {
         mainnetFork = vm.createSelectFork({urlOrAlias: vm.envString("MAINNET_FORK_URL")});
     }
 
+    /**
+     * Check whether our fork fires
+     */
     function testSelectFork() public {
         vm.selectFork(mainnetFork);
         assertEq(vm.activeFork(),mainnetFork);
     }
 
+    /**
+     * Add liquidity Helper
+     */
     function addLiquidityC() public {
         weth.deposit{value: 100e18}();
         weth.approve(address(cpamm),100e18);
@@ -38,6 +50,9 @@ contract  CPAMMTest is Test {
         cpamm.addLiquidity(100e18,100e18);
     }
 
+    /**
+     * testing Add liquidity to cpamm
+     */
     function testAddLiquidityC() public {
         weth.deposit{value: 20e18}();
         weth.approve(address(cpamm),20e18);
@@ -50,6 +65,7 @@ contract  CPAMMTest is Test {
         assertGt(sharesAdded,0);
     }
 
+    //Testing swap in CPAMM
     function testSwapCPAMM() public{
         addLiquidityC();
 
@@ -64,6 +80,7 @@ contract  CPAMMTest is Test {
         
     }
 
+    // Testing remove liquidity
     function testRemoveLiquidityC() public {
         addLiquidityC();
 
