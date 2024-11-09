@@ -70,7 +70,34 @@ contract  CPAMMTest is Test {
         uint256 sharesAdded = cpamm.addLiquidity(20e18,20e18);
 
         assertGt(sharesAdded,0);
+        assertEq(cpamm.reserve0(),cpamm.reserve1());
         console2.log("Liquidity added: ",sharesAdded);
+    }
+
+    /**
+     * Adding extra liquidity to a pool with liquidity already
+     * This is not same as the previous
+     * This has liquidity not like the normal which is just zero
+     */
+    function testAddExtraLiq() public {
+
+        console2.log("Total supply: ",cpamm.totalSupply());
+        addLiquidityC();
+
+        weth.deposit{value: 15e18}();
+        weth.approve(address(cpamm), 15e18);
+
+        deal(DAI, address(this),15e18,true);
+        dai.approve(address(cpamm),15e18);
+
+        console2.log("Total supply: ",cpamm.totalSupply());
+
+        uint256 sharesAdded = cpamm.addLiquidity(15e18,15e18);
+
+        assertGt(sharesAdded,0);
+        assertEq(cpamm.reserve0(),cpamm.reserve1());
+
+        console2.log("Total supply: ",cpamm.totalSupply());
     }
 
     //Testing swap in CPAMM
@@ -86,8 +113,12 @@ contract  CPAMMTest is Test {
         deal(DAI,address(this), 30e18);
         dai.approve(address(cpamm), 30e18);
 
+        uint256 bal = dai.balanceOf(address(this));
+
         uint256 amountOut = cpamm.swap(WETH,19e18);
         assertGt(amountOut,0);
+        assertEq(bal + amountOut, dai.balanceOf(address(this)));
+
         console2.log("Amount out is : ", amountOut);
         
     }
@@ -102,5 +133,6 @@ contract  CPAMMTest is Test {
 
         assertEq(amount0, 65e18);
         assertEq(amount1, 65e18);
+        assertEq(cpamm.reserve0(), cpamm.reserve1());
     }
 }

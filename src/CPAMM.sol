@@ -101,7 +101,7 @@ contract CPAMM {
         */
         if (reserve0 > 0 || reserve1 > 0) {
             require(
-                reserve0 * _amount1 == reserve1 * _amount0, "x / y != dx / dy"
+                reserve0 * _amount1 == reserve1 * _amount0, "x / y != dx / dy" //invariant
             );
         }
 
@@ -194,7 +194,7 @@ contract CPAMM {
         --- Equation 1 ---
         v = s / T * L
         sqrt(dxdy) = s / T * sqrt(xy)
-
+ 
         Amount of liquidity to remove must not change price so 
         dx / dy = x / y
 
