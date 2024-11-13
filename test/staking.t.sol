@@ -36,7 +36,7 @@ contract StakingTest is Test{
         vm.stopPrank();
     }
 
-        function stake(address topG) public {
+    function stake(address topG) public {
         deal(DAI,topG,5000e19,true);
         vm.startPrank(topG);
         IERC20(DAI).approve(address(staking), 5000e18);
@@ -84,9 +84,56 @@ contract StakingTest is Test{
          vm.warp(block.timestamp + 8 days);
         uint256 reward = staking.rewardPerToken();
 
-        console2.log(staking.rewardRate());
+        console2.log("Staking reward rate: ",staking.rewardRate());
         assertGt(reward,0);
 
+    }
+
+    function testEarned() public {
+        vm.warp(2 days);
+        stakeOwner(address(this));
+
+        deal(USDC,address(staking),50e23);
+
+        staking.notifyRewardAmount(500e18);
+        vm.warp(block.timestamp + 4 days);
+        uint256 amountEarned = staking.earned(address(this));
+
+        console2.log("Amount earned: ",amountEarned);
+        assertGt(amountEarned,0);
+    }
+
+    function testGetReward() public {
+        testRewards();
+        uint256 balBefore = IERC20(USDC).balanceOf(address(this));
+        staking.getReward();
+        uint256 balAfter = IERC20(USDC).balanceOf(address(this));
+        assertGt(balAfter, balBefore);
+       
+    }
+
+    function testSetRewardsDuration() public {
+        staking.setRewardsDuration(4 days);
+        assertEq(staking.duration(), 4 days);
+    }
+
+    function testSetRewardsDurationNotOwner() public{
+        vm.expectRevert();
+        vm.prank(address(0xabc));
+        staking.setRewardsDuration(59 days);
+    }
+
+    function testNotifyRewardAmount() public {
+        vm.warp(3 days);
+        stakeOwner(address(this));
+        stake(address(45));
+
+        deal(USDC,address(staking),50e23,true);
+
+        staking.notifyRewardAmount(500e18);
+        console2.log("Staking will end at: ", staking.finishAt());
+        assertEq(staking.updatedAt(), block.timestamp);
+        assertGt(staking.finishAt(), staking.updatedAt());
     }
 
 }
