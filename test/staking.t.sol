@@ -61,15 +61,24 @@ contract StakingTest is Test{
 
     function testWithdraw() public {
         stake(address(this));
-
+        
+        uint256 daiBalBefore = IERC20(DAI).balanceOf(address(this));
         staking.withdraw(4500e18);
 
         uint256 stakeBal = staking.balanceOf(address(this));
         uint256 totalSupply = staking.totalSupply();
         assertEq(stakeBal,500e18);
         assertEq(totalSupply,500e18);
+        assertEq(IERC20(DAI).balanceOf(address(this)), daiBalBefore + 4500e18);
         console2.log("Stake amount left: ", stakeBal);
         console2.log("Total supply: ", totalSupply);
+    }
+
+    function testWithdrawZero() public {
+        stake(address(this));
+
+        vm.expectRevert();
+        staking.withdraw(0);
     }
 
     function testRewards() public{
@@ -135,5 +144,16 @@ contract StakingTest is Test{
         assertEq(staking.updatedAt(), block.timestamp);
         assertGt(staking.finishAt(), staking.updatedAt());
     }
+
+    function testNotOwnerNotifyReward() public {
+        stakeOwner(address(this));
+        vm.warp(3 days);
+        
+        vm.expectRevert();
+        vm.prank(address(0xabc));
+        staking.notifyRewardAmount(500e18);
+    }
+
+
 
 }
