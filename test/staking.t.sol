@@ -6,6 +6,11 @@ import {console2} from "forge-std/console2.sol";
 import {StakingRewards} from  "../src/StRewards.sol";
 import {IERC20} from "../src/StRewards.sol";
 
+/**
+ * @title Staking Rewards Test
+ * @author 4B 
+ * @notice Testing staking rewards contract
+ */
 contract StakingTest is Test{
 
     address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
@@ -20,11 +25,18 @@ contract StakingTest is Test{
         mainnetFork = vm.createSelectFork({urlOrAlias: vm.envString("MAINNET_FORK_URL")});
     }
 
+    /**
+     * Testing Fork
+     */
     function testSelectForkS() public {
         vm.selectFork(mainnetFork);
         assertEq(vm.activeFork(),mainnetFork);
     }
 
+    /**
+     * Testing whether owner can stake
+     * @param topG owner address
+     */
     function stakeOwner(address topG) public {
         deal(DAI,topG,5000e19,true);
         vm.startPrank(topG);
@@ -36,6 +48,7 @@ contract StakingTest is Test{
         vm.stopPrank();
     }
 
+    // Helper functions to stake.
     function stake(address topG) public {
         deal(DAI,topG,5000e19,true);
         vm.startPrank(topG);
@@ -45,6 +58,9 @@ contract StakingTest is Test{
         vm.stopPrank();
     }
 
+    /**
+     * Testing whether other users than the owner can stake
+     */
     function testStake() public {
         deal(DAI,address(this),5000e19,true);
         IERC20(DAI).approve(address(staking), 5000e18);
@@ -59,6 +75,9 @@ contract StakingTest is Test{
         assertEq(stakeBal,5000e18);
     }
 
+    /**
+     * Testing whether stakers can withdraw their stake
+     */
     function testWithdraw() public {
         stake(address(this));
         
@@ -74,6 +93,9 @@ contract StakingTest is Test{
         console2.log("Total supply: ", totalSupply);
     }
 
+    /**
+     * Confirms whether the withdrawal on zero actually reverts
+     */
     function testWithdrawZero() public {
         stake(address(this));
 
@@ -81,6 +103,9 @@ contract StakingTest is Test{
         staking.withdraw(0);
     }
 
+    /**
+     * This tests confirm whether user actually accrues rewards
+     */
     function testRewards() public{
         vm.warp(2 days);
         stakeOwner(address(this));
@@ -98,6 +123,9 @@ contract StakingTest is Test{
 
     }
 
+    /**
+     * Tests the whether stakers earn on their stake
+     */
     function testEarned() public {
         vm.warp(2 days);
         stakeOwner(address(this));
@@ -112,6 +140,9 @@ contract StakingTest is Test{
         assertGt(amountEarned,0);
     }
 
+    /**
+     * Tests to confirm whether user can withdraw his accrued rewards
+     */
     function testGetReward() public {
         testRewards();
         uint256 balBefore = IERC20(USDC).balanceOf(address(this));
@@ -121,17 +152,26 @@ contract StakingTest is Test{
        
     }
 
+    /**
+     * Tests whether owner can set rewardsDuration
+     */
     function testSetRewardsDuration() public {
         staking.setRewardsDuration(4 days);
         assertEq(staking.duration(), 4 days);
     }
 
+    /**
+     * Test to confirm whether function will revert when owners try to set that param
+     */
     function testSetRewardsDurationNotOwner() public{
         vm.expectRevert();
         vm.prank(address(0xabc));
         staking.setRewardsDuration(59 days);
     }
 
+    /**
+     * Test to check whether NotifyRewardAmount work as intended
+     */
     function testNotifyRewardAmount() public {
         vm.warp(3 days);
         stakeOwner(address(this));
@@ -145,6 +185,9 @@ contract StakingTest is Test{
         assertGt(staking.finishAt(), staking.updatedAt());
     }
 
+    /**
+     * Test to confirm any user other than owner that calls this function reverts
+     */
     function testNotOwnerNotifyReward() public {
         stakeOwner(address(this));
         vm.warp(3 days);
