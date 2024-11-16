@@ -3,8 +3,8 @@ pragma solidity 0.8.26;
 
 import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
-import {StakingRewards} from  "../src/StRewards.sol";
-import {IERC20} from "../src/StRewards.sol";
+import {StakingRewards} from  "../src/StakingRewards.sol";
+import {IERC20} from "../src/StakingRewards.sol";
 
 /**
  * @title Staking Rewards Test
