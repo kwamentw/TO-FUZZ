@@ -42,5 +42,20 @@ contract DisStakingTest is Test{
         console2.log("Amount staked: ", disStaking.balanceOf(address(this)));
         assertEq(disStaking.balanceOf(address(this)),0);
     }
+//check error
+    function testUpdateRewardIndex() public{
+        disStaking.updateRewardIndex(0);
+    }
+//check error
+    function testClaim() public {
+        deal(DAI, address(this), 30e18, true);
+        IERC20(DAI).approve(address(disStaking),25e18);
+        disStaking.stake(25e18);
+        console2.log("-------------staked------------- ");
+
+        uint256 reward = disStaking.claim();
+
+        assertGt(reward,0);
+    }
 
 }
