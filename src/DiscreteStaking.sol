@@ -9,7 +9,8 @@ contract DiscreteStakingRewards {
     uint256 public totalSupply;
 
     uint256 private constant MULTIPLIER = 1e18;
-    uint256 private rewardIndex;
+    // Changed this to public for testing purposes
+    uint256 public rewardIndex;
     mapping(address => uint256) private rewardIndexOf;
     mapping(address => uint256) private earned;
 
