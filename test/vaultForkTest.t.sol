@@ -5,7 +5,9 @@ import {Vault} from "../src/vault.sol";
 import {IERC20} from "../src/vault.sol";
 import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
-
+import {VaultHandler} from "./vaultHandler.sol";
+import {StdInvariant} from "forge-std/StdInvariant.sol";
+import {ERC20} from "./ERC20Mock.sol";
 
 /**
  * @title Vault test file
@@ -13,16 +15,25 @@ import {console2} from "forge-std/console2.sol";
  * @notice Tesing a vault contract by smartcontractprogrammer
  */
 contract TestVault is Test{
+    // ERC20 fakeDai;
+    // address  DAI = address(fakeDai);
     Vault vault;
+    VaultHandler handler;
 
+    // for my fork testing
     address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
 
     uint256 mainnetFork;
 
     function setUp() public {
+        // fakeDai = new ERC20("Dai", "DAI", 18, 100_000);
         vault = new Vault(DAI);
         mainnetFork = vm.createSelectFork({urlOrAlias: vm.envString("MAINNET_FORK_URL")});
+        handler = new VaultHandler(vault);
+        targetContract(address(handler));
     }
+
+    //////////////////// Fork Tests ////////////////////////
 
     function testSelectForkV() public {
         vm.selectFork(mainnetFork);
@@ -144,5 +155,23 @@ contract TestVault is Test{
         // now lets confirm the vault was successfully drained
         assertEq(IERC20(DAI).balanceOf(address(vault)),0);
         console2.log("Vault balance after attacker's withdrawal: ", IERC20(DAI).balanceOf(address(vault)));
+    }
+
+    ///////////////////////// fuzz Tests ////////////////////////////////
+
+    function testHandlerDeposit() public{
+        handler.deposit(20e18);
+    }
+
+    function invariant_TotalSuppEqualsbalOfVault() public{
+        assertEq(vault.totalSupply(),IERC20(DAI).balanceOf(address(vault)));
+    }
+
+    function invariant_BalUserLteTotalSupply() public{
+        assertLte(vault.balanceOf(msg.sender), vault.totalSupply());
+    }
+
+    function invariant_maxAssetsOfVault() public {
+        assertEq!(IERC20(DAI).balanceOf(address(vault)),type(uint256).max);
     }
 }
