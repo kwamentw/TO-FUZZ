@@ -32,22 +32,69 @@ contract TestVault is Test{
 
     ///////////////////////// Stateless Fuzz Tests ////////////////////////////////
 
+    /**
+     * Fuzzing the amount to deposit parameter
+     * @param amount amount to deposit
+     */
+    function testFuzzDeposit(uint256 amount) public {
+        amount = bound(amount,20e3,2000000e18);
+
+        fakeDai.mint(address(this), amount);
+        fakeDai.approve(address(vault),amount);
+
+        vault.deposit(amount);
+        assertGt(vault.totalSupply(),0);
+    }
+
+    /**
+     * Depositing an amount 
+     * Then fuzzing the withdrawal amount
+     * @param amount amount to withdraw
+     */
+    function testFuzzWithdraw(uint256 amount) public{
+        amount = bound(amount,20e2,2000e18); // we have to bound to the amount deposited
+
+        fakeDai.mint(address(this), 2000e18);
+        fakeDai.approve(address(vault),2000e18);
+
+        vault.deposit(2000e18);
+
+        vault.withdraw(amount);
+
+        assertEq(vault.totalSupply(),2000e18 - amount);
+    }
+
    
     ///////////////////////// Stateful Fuzz Tests ////////////////////////////////
 
+    /**
+     * Testing whether my handler is working
+     */
     function testHandlerDeposit() public{
         handler.deposit(200);
     }
 
-    function invariant_TotalSuppEqualsbalOfVault() public{
+    /**
+     * Invariant to check whether totalSupply will always be equal to the balance of vault
+     * function asserted true == test passes
+     */
+    function invariant_TotalSuppEqualsbalOfVault() public view{
         assertEq(vault.totalSupply(),fakeDai.balanceOf(address(vault)));
     }
 
-    function invariant_BalUserLteTotalSupply() public{
+    /**
+     * Invariant to check whether user balance will always be less than or equal to total supply
+     * function asserted true == test passes
+     */
+    function invariant_BalUserLteTotalSupply() public view {
         assertLe(vault.balanceOf(msg.sender), vault.totalSupply());
     }
 
-    function invariant_maxAssetsOfVault() public {
+    /**
+     * Invariant to check whether vault balance can be uint256 MAX
+     * function asserted true == test passes
+     */
+    function invariant_maxAssetsOfVault() public view{
         assertNotEq(fakeDai.balanceOf(address(vault)),type(uint256).max);
     }
 }
