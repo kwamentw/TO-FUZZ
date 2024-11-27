@@ -15,16 +15,19 @@ import {ERC20} from "./ERC20Mock.sol";
  * @notice Tesing a vault contract by smartcontractprogrammer
  */
 contract TestVault is Test{
-    // ERC20 fakeDai;
-    // address  DAI = address(fakeDai);
+    ERC20 fakeDai;
     Vault vault;
     VaultHandler handler;
 
     function setUp() public {
-        // fakeDai = new ERC20("Dai", "DAI", 18, 100_000);
-        vault = new Vault(DAI);
+        fakeDai = new ERC20("Dai", "FDAI", 18, 100_000);
+        vault = new Vault(address(fakeDai));
         handler = new VaultHandler(vault);
         targetContract(address(handler));
+
+        //Solution-to-the-arithmetic-overflow-revert error = minting some tokens to the handler
+        vm.prank(address(handler));
+        fakeDai.mint(address(handler), 1000e6);
     }
 
     ///////////////////////// Stateless Fuzz Tests ////////////////////////////////
@@ -33,18 +36,18 @@ contract TestVault is Test{
     ///////////////////////// Stateful Fuzz Tests ////////////////////////////////
 
     function testHandlerDeposit() public{
-        handler.deposit(20e18);
+        handler.deposit(200);
     }
 
     function invariant_TotalSuppEqualsbalOfVault() public{
-        assertEq(vault.totalSupply(),IERC20(DAI).balanceOf(address(vault)));
+        assertEq(vault.totalSupply(),fakeDai.balanceOf(address(vault)));
     }
 
     function invariant_BalUserLteTotalSupply() public{
-        assertLte(vault.balanceOf(msg.sender), vault.totalSupply());
+        assertLe(vault.balanceOf(msg.sender), vault.totalSupply());
     }
 
     function invariant_maxAssetsOfVault() public {
-        assertEq!(IERC20(DAI).balanceOf(address(vault)),type(uint256).max);
+        assertNotEq(fakeDai.balanceOf(address(vault)),type(uint256).max);
     }
 }

@@ -156,22 +156,4 @@ contract TestVault is Test{
         assertEq(IERC20(DAI).balanceOf(address(vault)),0);
         console2.log("Vault balance after attacker's withdrawal: ", IERC20(DAI).balanceOf(address(vault)));
     }
-
-    ///////////////////////// fuzz Tests ////////////////////////////////
-
-    function testHandlerDeposit() public{
-        handler.deposit(20e18);
-    }
-
-    function invariant_TotalSuppEqualsbalOfVault() public{
-        assertEq(vault.totalSupply(),IERC20(DAI).balanceOf(address(vault)));
-    }
-
-    function invariant_BalUserLteTotalSupply() public{
-        assertLte(vault.balanceOf(msg.sender), vault.totalSupply());
-    }
-
-    function invariant_maxAssetsOfVault() public {
-        assertEq!(IERC20(DAI).balanceOf(address(vault)),type(uint256).max);
-    }
 }
