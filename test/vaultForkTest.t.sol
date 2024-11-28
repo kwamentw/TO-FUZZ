@@ -5,9 +5,7 @@ import {Vault} from "../src/vault.sol";
 import {IERC20} from "../src/vault.sol";
 import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
-import {VaultHandler} from "./vaultHandler.sol";
 import {StdInvariant} from "forge-std/StdInvariant.sol";
-import {ERC20} from "./ERC20Mock.sol";
 
 /**
  * @title Vault test file
@@ -15,31 +13,34 @@ import {ERC20} from "./ERC20Mock.sol";
  * @notice Tesing a vault contract by smartcontractprogrammer
  */
 contract TestVault is Test{
-    // ERC20 fakeDai;
-    // address  DAI = address(fakeDai);
+    // vault to be tested
     Vault vault;
-    VaultHandler handler;
 
     // for my fork testing
     address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
 
+    // mainnet fork
     uint256 mainnetFork;
 
     function setUp() public {
         // fakeDai = new ERC20("Dai", "DAI", 18, 100_000);
         vault = new Vault(DAI);
         mainnetFork = vm.createSelectFork({urlOrAlias: vm.envString("MAINNET_FORK_URL")});
-        handler = new VaultHandler(vault);
-        targetContract(address(handler));
     }
 
     //////////////////// Fork Tests ////////////////////////
 
+    /**
+     * Testing whether my mainnet fork is active and will work
+     */
     function testSelectForkV() public {
         vm.selectFork(mainnetFork);
         assertEq(vm.activeFork(),mainnetFork);
     }
 
+    /**
+     * Helper function for depositing into vault
+     */
     function depositIntoVault() public {
         deal(DAI,address(this),10000e18,true);
         IERC20(DAI).approve(address(vault), 5620e18);
@@ -61,6 +62,9 @@ contract TestVault is Test{
         vault.deposit(562e18); 
     }
 
+    /**
+     * Testing vault deposit
+     */
     function testVaultDeposit() public{
         deal(DAI,address(this),10000e18,true);
         IERC20(DAI).approve(address(vault), 5620e18);
@@ -72,6 +76,10 @@ contract TestVault is Test{
         assertEq(IERC20(DAI).balanceOf(address(vault)),5620e18);
     }
 
+    /**
+     * Testing whether user can withdraw from vault
+     * Checks whether after withdrawal there's no dust left behind
+     */
     function testVaultWithdraw() public {
         //------- some deposits first ------
         depositIntoVault();
@@ -110,6 +118,9 @@ contract TestVault is Test{
         assertEq(IERC20(DAI).balanceOf(address(vault)),0);
     }
 
+    /**
+     * Testing whether our vault is vulnerable to inflation attacks
+     */
     function testVaultInflation() public {
         deal(DAI,address(this),1000e18,true);
         IERC20(DAI).approve(address(vault), 10e18);

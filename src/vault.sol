@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
+/**
+ * @title Vault
+ * @author Solidity by example
+ * @notice This is just for educational purposes and not production code
+ */
 contract Vault {
     IERC20 public immutable token;
 
