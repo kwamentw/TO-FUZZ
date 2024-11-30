@@ -8,13 +8,27 @@ import {StdInvariant} from "forge-std/StdInvariant.sol";
 import {ERC20} from "./ERC20Mock.sol";
 import {StakingRewHandler} from "./stakingRewHandler.sol";
 
+/**
+ * @title Staking Rewards Test
+ * @author 4B
+ * @notice Fuzz testing the staking contract
+ */
+
 contract TestStaking is Test{
+    // mock token
     ERC20 token;
+    // staking contract to test
     StakingRewards staking;
+    // test Handler
     StakingRewHandler stHandler;
 
     function setUp() public {
 
     }
+
+    ///////////////////////// stateless fuzz //////////////////////////
+
+
+    ///////////////////////// stateful fuzz ///////////////////////////
 
 }
