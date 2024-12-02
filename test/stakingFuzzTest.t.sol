@@ -27,6 +27,22 @@ contract TestStaking is Test{
     }
 
     ///////////////////////// stateless fuzz //////////////////////////
+    /**
+     * Fuzz amount To stake
+     */
+    function testFuzzStake() public {}
+    /**
+     * Fuzz amount To withdraw from staked balance 
+     */
+    function testFuzzWithdraw() public {}
+    /**
+     * FUzz duration in reward duration setter function
+     */
+    function testFuzzSetRewDuration() public {}
+    /**
+     * Fuzz notifyReward Amount
+     */
+    function testFuzzNotifyRewAmount() public {}
 
 
     ///////////////////////// stateful fuzz ///////////////////////////
