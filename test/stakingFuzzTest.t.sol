@@ -15,14 +15,21 @@ import {StakingRewHandler} from "./stakingRewHandler.sol";
  */
 
 contract TestStaking is Test{
-    // mock token
-    ERC20 token;
+    // mock reward token
+    ERC20 rewToken;
+    // mock staking token
+    ERC20 stakeToken;
     // staking contract to test
     StakingRewards staking;
     // test Handler
     StakingRewHandler stHandler;
 
     function setUp() public {
+        rewToken = new ERC20("reward token","RWDTKN",18,8000);
+        stakeToken = new ERC20("staking token","STKTKN",18,8000);
+        staking = new StakingRewards(address(stakeToken), address(rewToken));
+        stHandler = new StakingRewHandler(staking);
+        targetContract(address(stHandler));
 
     }
 
@@ -30,19 +37,34 @@ contract TestStaking is Test{
     /**
      * Fuzz amount To stake
      */
-    function testFuzzStake() public {}
+    function testFuzzStake(uint256 amountToStake) public {
+        amountToStake = bound(amountToStake,1,9000e18);
+
+        stakeToken.mint(address(this), amountToStake);
+        stakeToken.approve(address(staking), amountToStake);
+
+        staking.stake(amountToStake);
+    }
     /**
      * Fuzz amount To withdraw from staked balance 
      */
-    function testFuzzWithdraw() public {}
+    function testFuzzStWithdraw(uint256 amountToWithdraw) public {
+        amountToWithdraw = bound(amountToWithdraw, 1, 5000e18);
+
+        stakeToken.mint(address(this),5000e18);
+        stakeToken.approve(address(staking), 5000e18);
+        staking.stake(5000e18);
+
+        staking.withdraw(amountToWithdraw);
+    }
     /**
      * FUzz duration in reward duration setter function
      */
-    function testFuzzSetRewDuration() public {}
-    /**
-     * Fuzz notifyReward Amount
-     */
-    function testFuzzNotifyRewAmount() public {}
+    function testFuzzSetRewDuration(uint256 duration) public {
+        duration = bound(duration, 1, type(uint256).max);
+
+        staking.setRewardsDuration(duration);
+    }
 
 
     ///////////////////////// stateful fuzz ///////////////////////////
