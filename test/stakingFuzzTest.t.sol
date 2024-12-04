@@ -31,6 +31,9 @@ contract TestStaking is Test{
         stHandler = new StakingRewHandler(staking);
         targetContract(address(stHandler));
 
+        stakeToken.mint(address(stHandler),200e18);
+        staking.setRewardsDuration(12);
+
     }
 
     ///////////////////////// stateless fuzz //////////////////////////
@@ -68,5 +71,31 @@ contract TestStaking is Test{
 
 
     ///////////////////////// stateful fuzz ///////////////////////////
+
+    /////// testing handler stake and withdraw functions before
+    function testHanStake() public {
+        stHandler.stake(20e18);
+    }
+
+    function testHanWithdraw() public {
+        stHandler.stake(20e18);
+
+        stHandler.withdraw(20e18);
+    }
+    //////////////////////////////////////////////////////////////
+
+    ///////////////// invariants //////////////
+
+    function invariant_BalStakedEqualsBalOfStakingContract() public view {
+        assertEq(staking.totalSupply(),stakeToken.balanceOf(address(staking)));
+    }
+
+    function invariant_RewardsDurationCannotbeZero() public view{
+        assertGt(staking.duration(),0);
+    }
+
+    function invariant_updateTimeShouldBeGtZero() public view{
+        assertGt(staking.updatedAt(),0);
+    }
 
 }

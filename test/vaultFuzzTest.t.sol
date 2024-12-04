@@ -26,7 +26,6 @@ contract TestVault is Test{
         targetContract(address(handler));
 
         //Solution-to-the-arithmetic-overflow-revert error = minting some tokens to the handler
-        vm.prank(address(handler));
         fakeDai.mint(address(handler), 1000e6);
     }
 

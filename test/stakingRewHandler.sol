@@ -19,11 +19,18 @@ contract StakingRewHandler is Test {
 
     ///////////////////////////////// handler functions ///////////////////////////////////
 
+    function setRewardsDuration(uint256 duration) public {
+        duration = bound(duration,1,type(uint256).max);
+        staking.setRewardsDuration(duration);
+    } 
+
     function stake(uint256 amountToStake) public {
         amountToStake = bound(amountToStake,10,90e18);
 
         stakeToken.mint(address(this),amountToStake);
         stakeToken.approve(address(staking),amountToStake);
+
+        setRewardsDuration(1 days);
 
         staking.stake(amountToStake);
     }
@@ -32,9 +39,4 @@ contract StakingRewHandler is Test {
         amountToWithdraw = bound(amountToWithdraw,10,90e18);
         staking.withdraw(amountToWithdraw);
     }
-
-    function setRewardsDuration(uint256 duration) public {
-        staking.setRewardsDuration(duration);
-    } 
-
 }
