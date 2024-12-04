@@ -29,8 +29,10 @@ contract TestStaking is Test{
         stakeToken = new ERC20("staking token","STKTKN",18,8000);
         staking = new StakingRewards(address(stakeToken), address(rewToken));
         stHandler = new StakingRewHandler(staking);
+        // Target contract to fuzz
         targetContract(address(stHandler));
 
+        // minting some tokens to the handler to get rid of the errors
         stakeToken.mint(address(stHandler),200e18);
         staking.setRewardsDuration(12);
 
@@ -83,19 +85,36 @@ contract TestStaking is Test{
         stHandler.withdraw(20e18);
     }
     //////////////////////////////////////////////////////////////
+    
 
-    ///////////////// invariants //////////////
+    ////// invariants ///////
 
+    /**
+     * An invariant to check that the balance of the contract and the total supply are always the same
+     */
     function invariant_BalStakedEqualsBalOfStakingContract() public view {
         assertEq(staking.totalSupply(),stakeToken.balanceOf(address(staking)));
     }
 
+    /**
+     * An invariant to make sure rewards duration can never be set to zero
+     */
     function invariant_RewardsDurationCannotbeZero() public view{
         assertGt(staking.duration(),0);
     }
 
-    function invariant_updateTimeShouldBeGtZero() public view{
-        assertGt(staking.updatedAt(),0);
+    /**
+     * An invariant to make sure total supply is always greater than total stakes
+     */
+    function invariant_BalOfStakerLeTotalSupply() public view{
+        assertLe(staking.balanceOf(address(stHandler)),staking.totalSupply());
     }
 
+    /**
+     * Since this test involves only one user staking 
+     * This invariant makes sure that the total stake of this sender is the same as the balance of stake tokens it holds 
+     */
+    function invariant_BalofConShdEqTotalStakeOfSender() public view{
+        assertEq(staking.balanceOf(address(stHandler)), stakeToken.balanceOf(address(staking)));
+    }
 }

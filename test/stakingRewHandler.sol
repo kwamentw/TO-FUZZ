@@ -6,9 +6,17 @@ import {StakingRewards} from "../src/StakingRewards.sol";
 import {ERC20} from "./ERC20Mock.sol";
 
 
+/**
+ * @title Staking rewards handler
+ * @author 4B
+ * @notice a  handler for fuzzing the staking contract
+ */
 contract StakingRewHandler is Test {
+    // staking contract
     StakingRewards staking;
+    // stake token
     ERC20 stakeToken;
+    // reward token
     ERC20 rewToken;
 
     constructor(StakingRewards _staking)  {
