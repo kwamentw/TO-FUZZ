@@ -3,8 +3,8 @@ pragma solidity ^0.8.26;
 
 /**
  * @title Discrete Staking Rewards
- * @author Solidity bu example
- * @notice 
+ * @author Solidity by example
+ * @notice A clone of the contract for testing
  */
 contract DiscreteStakingRewards {
     IERC20 public immutable stakingToken;
