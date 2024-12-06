@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
+/**
+ * @title Discrete Staking Rewards
+ * @author Solidity bu example
+ * @notice 
+ */
 contract DiscreteStakingRewards {
     IERC20 public immutable stakingToken;
     IERC20 public immutable rewardToken;
