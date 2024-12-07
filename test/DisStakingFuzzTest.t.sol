@@ -19,5 +19,34 @@ contract FuzzDiscreteStaking is Test{
         disStaking = new DiscreteStakingRewards(address(stakeToken),address(rewardToken));
         handler = new DisStakingHandler(disStaking);
         targetContract(address(handler));
+
+        stakeToken.mint(address(handler),900e18);
+    }
+
+    //// Stateless-fuzz tests //// 
+
+    /**
+     * Fuzzing the stake function
+     * @param amount amount of stake to fuzz
+     */
+    function testFuzzDisStake(uint256 amount) public{
+        amount = bound(amount,1,900e18);
+        stakeToken.mint(address(this),amount);
+        stakeToken.approve(address(disStaking), amount);
+
+        disStaking.stake(amount);
+    }
+
+    /**
+     * Fuzzing the unstake function
+     * @param amount amount of unstake to fuzz within bound deposited
+     */
+    function testFuzzDisUnstake(uint256 amount) public {
+        amount = bound(amount,1,100e18);
+        stakeToken.mint(address(this), 100e18);
+        stakeToken.approve(address(disStaking), 100e18);
+        disStaking.stake(100e18);
+
+        disStaking.unstake(amount);
     }
 }
