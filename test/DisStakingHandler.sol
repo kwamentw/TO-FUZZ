@@ -5,6 +5,11 @@ import {Test} from "forge-std/Test.sol";
 import {ERC20} from "./ERC20Mock.sol";
 import {DiscreteStakingRewards} from "../src/DiscreteStaking.sol";
 
+/**
+ * @title Discrete staking handler
+ * @author 4B
+ * @notice A test handler for discrete staking
+ */
 contract DisStakingHandler is Test{
     DiscreteStakingRewards disStaking;
     ERC20 stakeToken;
@@ -31,7 +36,7 @@ contract DisStakingHandler is Test{
     }
 
     /**
-     * Hand;er for unstaking
+     * Handler for unstaking
      * @param amount parameter to fuzz i.e amount to unstake
      */
     function unstake(uint256 amount) public {
