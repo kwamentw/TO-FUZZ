@@ -11,7 +11,9 @@ import {DiscreteStakingRewards} from "../src/DiscreteStaking.sol";
  * @notice A test handler for discrete staking
  */
 contract DisStakingHandler is Test{
+    //main contract
     DiscreteStakingRewards disStaking;
+    //tokens
     ERC20 stakeToken;
     ERC20 rewardToken;
 

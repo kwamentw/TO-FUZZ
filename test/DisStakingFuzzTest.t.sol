@@ -13,10 +13,12 @@ import {ERC20} from "./ERC20Mock.sol";
  * @notice A stateless & stateful fuzz test for discrete staking
  */
 contract FuzzDiscreteStaking is Test{
-    
+    // Maint contract
     DiscreteStakingRewards disStaking;
+    // hanlder contract for testing
     DisStakingHandler handler;
 
+    //tokens
     ERC20 stakeToken;
     ERC20 rewardToken;
 
@@ -47,6 +49,7 @@ contract FuzzDiscreteStaking is Test{
     /**
      * Fuzzing the unstake function
      * @param amount amount of unstake to fuzz within bound deposited
+     * Fuzzing between the stake amount
      */
     function testFuzzDisUnstake(uint256 amount) public {
         amount = bound(amount,1,100e18);
