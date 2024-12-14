@@ -117,4 +117,6 @@ contract UniV3SwapTest is StdCheats, Test{
         assertGt(amountOut,1e18);
     }
 
+    // have to test sqrtlimitpricex96 for jeiwan's appraent funds getting stuck when the limit is met
+
 }
