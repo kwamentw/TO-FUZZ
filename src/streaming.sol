@@ -8,6 +8,7 @@ import {IWETH} from "./interface/IWETH.sol";
 contract Streaming {
     event StreamCreated(uint256 streamID, address creator, address receiver, uint256 duratioN );
     event StreamExtended(uint256 streamID, uint256 newStopTime);
+    event StreamWithdrawnFrom(address receipient, uint256 amount, uint256 streamID);
     
     address NATIVE_TOKEN = address(0);
 
@@ -22,6 +23,8 @@ contract Streaming {
         uint256 stopTime;
         uint256 withdrawn;
     }
+    //TODO i think token address should be added to the stream struct too
+    // TODO need to add a variable that tracks whether stream is open or close 
 
     mapping(uint256 streamId => Stream stream) streamInfo;
     uint256 nextStreamId;
@@ -74,5 +77,30 @@ contract Streaming {
         streamInfo[_streamId] = extStream;
 
         emit StreamExtended(_streamId, newStopTime);
+    }
+
+    function withdrawStream(uint256 _streamId, uint256 amount, address token) public returns(uint256 amountWithdrawn){
+        Stream memory streamTowith = streamInfo[_streamId];
+        require(msg.sender == streamTowith.receiver, "You cannot withdraw from stream");
+        require(streamTowith.stopTime < block.timestamp, "stream ended");
+        require(amount <= streamTowith.deposit,"Not enough balance");
+
+        //TODO i think we should add a fee mechanism to add some regulation on early withdrawal
+
+        streamTowith.deposit -= amount;
+
+        if(token == NATIVE_TOKEN){
+            weth.withdraw(amount);
+           (bool ok,) = payable(streamTowith.receiver).call{value: amount}("");
+           require(ok);
+        }else{
+            IERC20(token).transfer(streamTowith.receiver,amount);
+        }
+
+        //TODO close stream whenever all the balance has been withdrawed from stream
+
+        emit StreamWithdrawnFrom(streamTowith.receiver, amount, _streamId);
+        return amount;
+
     }
 }
