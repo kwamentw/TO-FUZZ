@@ -9,6 +9,7 @@ contract Streaming {
     event StreamCreated(uint256 streamID, address creator, address receiver, uint256 duratioN );
     event StreamExtended(uint256 streamID, uint256 newStopTime);
     event StreamWithdrawnFrom(address receipient, uint256 amount, uint256 streamID);
+    event StreamClosed(uint256 streamId, address sender);
     
     address NATIVE_TOKEN = address(0);
 
@@ -22,9 +23,9 @@ contract Streaming {
         uint256 startTime;
         uint256 stopTime;
         uint256 withdrawn;
+        address token;
+        bool isOpen
     }
-    //TODO i think token address should be added to the stream struct too
-    // TODO need to add a variable that tracks whether stream is open or close 
 
     mapping(uint256 streamId => Stream stream) streamInfo;
     uint256 nextStreamId;
@@ -33,7 +34,7 @@ contract Streaming {
         weth = IWETH(_weth);
     }
 
-    function createStream(address _receiver, uint256 _deposit, uint256 _startTime, uint256 duration, address token) public payable returns(uint256 streaMID){
+    function createStream(address _receiver, uint256 _deposit, uint256 _startTime, uint256 duration, address _token) public payable returns(uint256 streaMID){
         require(_receiver != address(0), "invalid address");
         require(_deposit > 0, "zero amount");
         require(duration > 0, "Invalid duration");
@@ -46,14 +47,15 @@ contract Streaming {
             ratePerSecond: _deposit / duration,
             startTime: _startTime,
             stopTime: _startTime + duration,
-            withdrawn:0
+            withdrawn:0,
+            token: _token
         });
 
-        if (token == NATIVE_TOKEN){
+        if (_token == NATIVE_TOKEN){
             require(msg.value==_deposit,"invalid deposit");
             weth.deposit{value: _deposit}();
         }else{
-            IERC20(token).transferFrom(msg.sender,address(this), _deposit);
+            IERC20(_token).transferFrom(msg.sender,address(this), _deposit);
         }
 
         emit StreamCreated(nextStreamId, msg.sender, _receiver, duration);
@@ -66,6 +68,7 @@ contract Streaming {
         require(streamInfo[_streamId].stopTime > block.timestamp, "stream has already ended");
         require(streamInfo[_streamId].stopTime < newStopTime, "This is no extension");
         require(streamInfo[_streamId].sender == msg.sender,"Unauthorised");
+        require(streamInfo[_streamId].isOpen, "Stream is closed");
 
         Stream memory extStream = streamInfo[_streamId];
 
@@ -97,10 +100,44 @@ contract Streaming {
             IERC20(token).transfer(streamTowith.receiver,amount);
         }
 
-        //TODO close stream whenever all the balance has been withdrawed from stream
+        if(amount == streamTowith.deposit){
+            streamTowith.isOpen = false;
+        }
+
+        streamInfo[_streamId] = streamTowith;
 
         emit StreamWithdrawnFrom(streamTowith.receiver, amount, _streamId);
         return amount;
 
+    }
+
+    function closeStream(uint256 _streamId) extaernal  returns(uint256){
+        Stream memory streamToClose = streamInfo[_streamId];
+        require(msg.sender == streamToClose.sender);
+        require(block.timestamp >= streamToClose.stopTime, "Stream duration is not completed");
+        require(streamToClose.isOpen, "Stream is already closed");
+
+        uint256 amountToWithdraw;
+
+        if(streamToClose.deposit != 0){
+            amountToWithdraw = streamToClose.deposit;
+            streamToClose.deposit = 0;
+        }
+
+        address receipient = streamToClose.receiver;
+
+        if (streamToClose.token == NATIVE_TOKEN){
+            (bool ok,) = payable(receipient).call{value: amountToWithdraw}("");
+            require(ok);
+        }else{
+            bool ok = IERC20(token).transfer(receipient,amountToWithdraw);
+            require(ok,"txn failed");
+        }
+
+        streamToClose.isOpen = false;
+        streamInfo[_streamId] = streamToClose;
+
+        emit StreamClosed(_streamId, msg.sender);
+        return _streamId;
     }
 }
