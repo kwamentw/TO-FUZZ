@@ -10,6 +10,10 @@ contract Streaming {
     event StreamExtended(uint256 streamID, uint256 newStopTime);
     event StreamWithdrawnFrom(address receipient, uint256 amount, uint256 streamID);
     event StreamClosed(uint256 streamId, address sender);
+    event StreamPaused(address, bool);
+
+    bool paused;
+    address owner;
     
     address NATIVE_TOKEN = address(0);
 
@@ -24,7 +28,7 @@ contract Streaming {
         uint256 stopTime;
         uint256 withdrawn;
         address token;
-        bool isOpen
+        bool isOpen;
     }
 
     mapping(uint256 streamId => Stream stream) streamInfo;
@@ -32,9 +36,15 @@ contract Streaming {
 
     constructor(address _weth) {
         weth = IWETH(_weth);
+        owner = msg.sender;
     }
 
-    function createStream(address _receiver, uint256 _deposit, uint256 _startTime, uint256 duration, address _token) public payable returns(uint256 streaMID){
+    modifier isNotPaused() {
+        require(paused == false, "Stream is paused");
+        _;
+    }
+
+    function createStream(address _receiver, uint256 _deposit, uint256 _startTime, uint256 duration, address _token) public payable isNotPaused returns(uint256 streaMID){
         require(_receiver != address(0), "invalid address");
         require(_deposit > 0, "zero amount");
         require(duration > 0, "Invalid duration");
@@ -48,7 +58,8 @@ contract Streaming {
             startTime: _startTime,
             stopTime: _startTime + duration,
             withdrawn:0,
-            token: _token
+            token: _token,
+            isOpen: true
         });
 
         if (_token == NATIVE_TOKEN){
@@ -64,7 +75,7 @@ contract Streaming {
         return nextStreamId -1; // returns the current streamID
     }
 
-    function extendStream( uint256 _streamId, uint256 newStopTime) public {
+    function extendStream( uint256 _streamId, uint256 newStopTime) public isNotPaused {
         require(streamInfo[_streamId].stopTime > block.timestamp, "stream has already ended");
         require(streamInfo[_streamId].stopTime < newStopTime, "This is no extension");
         require(streamInfo[_streamId].sender == msg.sender,"Unauthorised");
@@ -82,7 +93,7 @@ contract Streaming {
         emit StreamExtended(_streamId, newStopTime);
     }
 
-    function withdrawStream(uint256 _streamId, uint256 amount, address token) public returns(uint256 amountWithdrawn){
+    function withdrawStream(uint256 _streamId, uint256 amount, address token) public isNotPaused returns(uint256 amountWithdrawn){
         Stream memory streamTowith = streamInfo[_streamId];
         require(msg.sender == streamTowith.receiver, "You cannot withdraw from stream");
         require(streamTowith.stopTime < block.timestamp, "stream ended");
@@ -111,7 +122,7 @@ contract Streaming {
 
     }
 
-    function closeStream(uint256 _streamId) extaernal  returns(uint256){
+    function closeStream(uint256 _streamId) external  returns(uint256){
         Stream memory streamToClose = streamInfo[_streamId];
         require(msg.sender == streamToClose.sender);
         require(block.timestamp >= streamToClose.stopTime, "Stream duration is not completed");
@@ -130,7 +141,7 @@ contract Streaming {
             (bool ok,) = payable(receipient).call{value: amountToWithdraw}("");
             require(ok);
         }else{
-            bool ok = IERC20(token).transfer(receipient,amountToWithdraw);
+            bool ok = IERC20(streamToClose.token).transfer(receipient,amountToWithdraw);
             require(ok,"txn failed");
         }
 
@@ -139,5 +150,11 @@ contract Streaming {
 
         emit StreamClosed(_streamId, msg.sender);
         return _streamId;
+    }
+
+    function pauseStream(bool _pause) external {
+        require(msg.sender == owner, "Not-Authorised"); // change this to a onlyOwner modifier
+        paused = _pause;
+        emit StreamPaused(msg.sender, _pause);
     }
 }
