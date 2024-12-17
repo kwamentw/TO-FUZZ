@@ -11,6 +11,7 @@ contract Streaming {
     event StreamWithdrawnFrom(address receipient, uint256 amount, uint256 streamID);
     event StreamClosed(uint256 streamId, address sender);
     event StreamPaused(address, bool);
+    event StreamReceipientChanged(address oldReceipient, address newReceipient);
 
     bool paused;
     address owner;
@@ -41,6 +42,17 @@ contract Streaming {
 
     modifier isNotPaused() {
         require(paused == false, "Stream is paused");
+        _;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not-Authorised");
+        _;
+    }
+
+    //TODO: add onlyOwnerOrStreamSender modifier
+    modifier onlyOwnerOrSender(address _sender) {
+        require(msg.sender == owner || msg.sender == _sender, "NotAuthorised");
         _;
     }
 
@@ -75,7 +87,7 @@ contract Streaming {
         return nextStreamId -1; // returns the current streamID
     }
 
-    function extendStream( uint256 _streamId, uint256 newStopTime) public isNotPaused {
+    function extendStream( uint256 _streamId, uint256 newStopTime) external isNotPaused {
         require(streamInfo[_streamId].stopTime > block.timestamp, "stream has already ended");
         require(streamInfo[_streamId].stopTime < newStopTime, "This is no extension");
         require(streamInfo[_streamId].sender == msg.sender,"Unauthorised");
@@ -122,9 +134,9 @@ contract Streaming {
 
     }
 
-    function closeStream(uint256 _streamId) external  returns(uint256){
+    function closeStream(uint256 _streamId) public  returns(uint256){
         Stream memory streamToClose = streamInfo[_streamId];
-        require(msg.sender == streamToClose.sender);
+        require(msg.sender == streamToClose.sender); // use this -> onlyOwnerOrSender(streamInfo[_streamId].sender)
         require(block.timestamp >= streamToClose.stopTime, "Stream duration is not completed");
         require(streamToClose.isOpen, "Stream is already closed");
 
@@ -152,9 +164,23 @@ contract Streaming {
         return _streamId;
     }
 
-    function pauseStream(bool _pause) external {
-        require(msg.sender == owner, "Not-Authorised"); // change this to a onlyOwner modifier
+    function pauseStream(bool _pause) external onlyOwner{
+        // require(msg.sender == owner, "Not-Authorised"); // change this to a onlyOwner modifier
         paused = _pause;
         emit StreamPaused(msg.sender, _pause);
+    }
+
+    function changeStreamReceipient(uint256 _streamId, address newReceiver) external onlyOwner returns(address){
+        Stream memory streamDet = streamInfo[_streamId];
+        require(streamDet.stopTime > block.timestamp, "Stream has ended");
+        require(streamDet.isOpen, "Stream is closed");
+
+        address oldReceiver = streamDet.receiver;
+        streamDet.receiver = newReceiver;
+
+        streamInfo[_streamId] = streamDet;
+
+        emit StreamReceipientChanged(oldReceiver, newReceiver);
+        return streamInfo[_streamId].receiver;
     }
 }
