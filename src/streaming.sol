@@ -50,25 +50,28 @@ contract Streaming {
         _;
     }
 
-    //TODO: add onlyOwnerOrStreamSender modifier
     modifier onlyOwnerOrSender(address _sender) {
         require(msg.sender == owner || msg.sender == _sender, "NotAuthorised");
         _;
     }
 
-    function createStream(address _receiver, uint256 _deposit, uint256 _startTime, uint256 duration, address _token) public payable isNotPaused returns(uint256 streaMID){
+    function createStream(address _receiver, uint256 _deposit, uint256 _duration, address _token) public payable isNotPaused returns(uint256 streaMID){
+        streaMID = _createStream(_receiver, _deposit, _duration, _token);
+    }
+
+    function _createStream(address _receiver, uint256 _deposit, uint256 duration, address _token) internal returns(uint256){
         require(_receiver != address(0), "invalid address");
         require(_deposit > 0, "zero amount");
         require(duration > 0, "Invalid duration");
-        require(_startTime >= block.timestamp, "stream cannot start in the past");
+        uint256 _start = block.timestamp;
         
         streamInfo[nextStreamId] = Stream({
             sender:msg.sender,
             receiver:_receiver,
             deposit:_deposit,
             ratePerSecond: _deposit / duration,
-            startTime: _startTime,
-            stopTime: _startTime + duration,
+            startTime: _start,
+            stopTime: _start + duration,
             withdrawn:0,
             token: _token,
             isOpen: true
@@ -87,10 +90,10 @@ contract Streaming {
         return nextStreamId -1; // returns the current streamID
     }
 
-    function extendStream( uint256 _streamId, uint256 newStopTime) external isNotPaused {
+    function extendStream( uint256 _streamId, uint256 newStopTime) external isNotPaused onlyOwnerOrSender(streamInfo[_streamId].sender) {
         require(streamInfo[_streamId].stopTime > block.timestamp, "stream has already ended");
         require(streamInfo[_streamId].stopTime < newStopTime, "This is no extension");
-        require(streamInfo[_streamId].sender == msg.sender,"Unauthorised");
+        // require(streamInfo[_streamId].sender == msg.sender,"Unauthorised");
         require(streamInfo[_streamId].isOpen, "Stream is closed");
 
         Stream memory extStream = streamInfo[_streamId];
@@ -134,9 +137,9 @@ contract Streaming {
 
     }
 
-    function closeStream(uint256 _streamId) public  returns(uint256){
+    function closeStream(uint256 _streamId) public onlyOwnerOrSender(streamInfo[_streamId].sender) returns(uint256){
         Stream memory streamToClose = streamInfo[_streamId];
-        require(msg.sender == streamToClose.sender); // use this -> onlyOwnerOrSender(streamInfo[_streamId].sender)
+        // require(msg.sender == streamToClose.sender); // use this -> onlyOwnerOrSender(streamInfo[_streamId].sender)
         require(block.timestamp >= streamToClose.stopTime, "Stream duration is not completed");
         require(streamToClose.isOpen, "Stream is already closed");
 
@@ -182,5 +185,16 @@ contract Streaming {
 
         emit StreamReceipientChanged(oldReceiver, newReceiver);
         return streamInfo[_streamId].receiver;
+    }
+
+    function batchCreateStream(address[] memory receiver, uint256[] memory deposit, uint256[] memory duration, address[] memory token) external returns(uint256[] memory streamIds){
+        require(receiver.length == deposit.length, "input mismatch-1");
+        require(receiver.length == duration.length, "input mismatch-2");
+        require(duration.length == token.length,"input mismatch-3");
+
+        uint256 length = receiver.length;
+        for(uint256 i=0; i<length; i++){
+            streamIds[i] = _createStream(receiver[i], deposit[i], duration[i], token[i]);
+        }
     }
 }
