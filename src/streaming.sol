@@ -90,7 +90,7 @@ contract Streaming {
         return nextStreamId -1; // returns the current streamID
     }
 
-    function extendStream( uint256 _streamId, uint256 newStopTime) external isNotPaused onlyOwnerOrSender(streamInfo[_streamId].sender) {
+    function extendStream( uint256 _streamId, uint256 newStopTime) public isNotPaused onlyOwnerOrSender(streamInfo[_streamId].sender) {
         require(streamInfo[_streamId].stopTime > block.timestamp, "stream has already ended");
         require(streamInfo[_streamId].stopTime < newStopTime, "This is no extension");
         // require(streamInfo[_streamId].sender == msg.sender,"Unauthorised");
@@ -187,7 +187,7 @@ contract Streaming {
         return streamInfo[_streamId].receiver;
     }
 
-    function batchCreateStream(address[] memory receiver, uint256[] memory deposit, uint256[] memory duration, address[] memory token) external returns(uint256[] memory streamIds){
+    function batchCreateStream(address[] memory receiver, uint256[] memory deposit, uint256[] memory duration, address[] memory token) external onlyOwner returns(uint256[] memory streamIds){
         require(receiver.length == deposit.length, "input mismatch-1");
         require(receiver.length == duration.length, "input mismatch-2");
         require(duration.length == token.length,"input mismatch-3");
@@ -197,4 +197,17 @@ contract Streaming {
             streamIds[i] = _createStream(receiver[i], deposit[i], duration[i], token[i]);
         }
     }
+
+    function batchExtendStream(uint256[] memory streamId, uint256[] memory newStopTime) external onlyOwner{
+        require(streamId.length == newStopTime.length,"invalid length");
+        uint256 length = streamId.length;
+
+        for(uint256 i=0; i<length; i++){
+            extendStream(streamId[i], newStopTime[i]);
+        }
+    }
+
+    // add batch for pause
+    // add batch for close
+    // add batch for changing receipient too
 }
