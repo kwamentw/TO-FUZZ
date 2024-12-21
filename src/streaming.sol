@@ -167,8 +167,9 @@ contract Streaming {
         return _streamId;
     }
 
-    function pauseStream(bool _pause) external onlyOwner{
+    function pauseStream(bool _pause) public onlyOwner{
         // require(msg.sender == owner, "Not-Authorised"); // change this to a onlyOwner modifier
+        require(_pause != paused, "The same value cannot be set twice");
         paused = _pause;
         emit StreamPaused(msg.sender, _pause);
     }
@@ -207,7 +208,14 @@ contract Streaming {
         }
     }
 
-    // add batch for pause
+
+    function batchPauseStream(bool[] memory _pause) external onlyOwner{
+        uint256 length = _pause.length
+
+        for(uint256 i=0; i<length; i++){
+            pauseStream(_pause[i]);
+        }
+    }
     // add batch for close
     // add batch for changing receipient too
 }
