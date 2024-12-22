@@ -216,6 +216,15 @@ contract Streaming {
             pauseStream(_pause[i]);
         }
     }
+    
     // add batch for close
+    function batchCloseStream(uint256[] memory streamIds) external onlyOwner{
+        require(streamIds.length != 0, "Invalid ids");
+        uint256 length = streamIds.length;
+
+        for(uint256 i=0; i<length; i++){
+            closeStream(streamIds[i]);
+        }
+    }
     // add batch for changing receipient too
 }
