@@ -174,7 +174,7 @@ contract Streaming {
         emit StreamPaused(msg.sender, _pause);
     }
 
-    function changeStreamReceipient(uint256 _streamId, address newReceiver) external onlyOwner returns(address){
+    function changeStreamReceipient(uint256 _streamId, address newReceiver) public onlyOwner returns(address){
         Stream memory streamDet = streamInfo[_streamId];
         require(streamDet.stopTime > block.timestamp, "Stream has ended");
         require(streamDet.isOpen, "Stream is closed");
@@ -210,13 +210,13 @@ contract Streaming {
 
 
     function batchPauseStream(bool[] memory _pause) external onlyOwner{
-        uint256 length = _pause.length
+        uint256 length = _pause.length;
 
         for(uint256 i=0; i<length; i++){
             pauseStream(_pause[i]);
         }
     }
-    
+
     // add batch for close
     function batchCloseStream(uint256[] memory streamIds) external onlyOwner{
         require(streamIds.length != 0, "Invalid ids");
@@ -227,4 +227,14 @@ contract Streaming {
         }
     }
     // add batch for changing receipient too
+    function batchChangeReceipient(uint256[] memory streamIds, address[] memory newReceipients) external onlyOwner{
+        require(streamIds.length != 0, "Invalid iDs");
+        require(streamIds.length == newReceipients.length,"array length mismatch");
+
+        uint256 length = streamIds.length;
+
+        for(uint256 i=0; i<length; i++){
+            changeStreamReceipient(streamIds[i], newReceipients[i]);
+        }
+    }
 }
