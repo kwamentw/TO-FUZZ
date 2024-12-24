@@ -5,7 +5,13 @@ import {IERC20} from "./interface/IERC20.sol";
 import {IWETH} from "./interface/IWETH.sol";
 
 
+/**
+ * @title Mi Streaming contract
+ * @author 4B
+ * @notice A regular streaming contract
+ */
 contract Streaming {
+    //// EVENTS
     event StreamCreated(uint256 streamID, address creator, address receiver, uint256 duratioN );
     event StreamExtended(uint256 streamID, uint256 newStopTime);
     event StreamWithdrawnFrom(address receipient, uint256 amount, uint256 streamID);
@@ -40,25 +46,42 @@ contract Streaming {
         owner = msg.sender;
     }
 
+    /**
+     * A modifier to check whether stream is paused or not
+     */
     modifier isNotPaused() {
         require(paused == false, "Stream is paused");
         _;
     }
 
+    /**
+     * A modifier to make sure only the owner can perform function calls 
+     */
     modifier onlyOwner() {
         require(msg.sender == owner, "Not-Authorised");
         _;
     }
 
+    /**
+     * A modifier to make sure only owner or sender can call a function
+     */
     modifier onlyOwnerOrSender(address _sender) {
         require(msg.sender == owner || msg.sender == _sender, "NotAuthorised");
         _;
     }
 
+    /**
+     * A funtion to create stream
+     * @param _receiver Address to receive funds from stream
+     * @param _deposit Amount deposited into stream
+     * @param _duration How long the stream will last
+     * @param _token Token deposited into stream
+     */
     function createStream(address _receiver, uint256 _deposit, uint256 _duration, address _token) public payable isNotPaused returns(uint256 streaMID){
         streaMID = _createStream(_receiver, _deposit, _duration, _token);
     }
 
+    /// an internal function that contains create stream logic
     function _createStream(address _receiver, uint256 _deposit, uint256 duration, address _token) internal returns(uint256){
         require(_receiver != address(0), "invalid address");
         require(_deposit > 0, "zero amount");
@@ -90,6 +113,11 @@ contract Streaming {
         return nextStreamId -1; // returns the current streamID
     }
 
+    /**
+     * To extend stop time of existing stream
+     * @param _streamId Id of the required stream to extend 
+     * @param newStopTime The new stop time of stream
+     */
     function extendStream( uint256 _streamId, uint256 newStopTime) public isNotPaused onlyOwnerOrSender(streamInfo[_streamId].sender) {
         require(streamInfo[_streamId].stopTime > block.timestamp, "stream has already ended");
         require(streamInfo[_streamId].stopTime < newStopTime, "This is no extension");
@@ -108,6 +136,12 @@ contract Streaming {
         emit StreamExtended(_streamId, newStopTime);
     }
 
+    /**
+     * To help withdraw tokes from an exiting stream to user
+     * @param _streamId Id of the required stream to withdraw from
+     * @param amount amount of tokens to withdraw from stream
+     * @param token Token to withdraw from stream
+     */
     function withdrawStream(uint256 _streamId, uint256 amount, address token) public isNotPaused returns(uint256 amountWithdrawn){
         Stream memory streamTowith = streamInfo[_streamId];
         require(msg.sender == streamTowith.receiver, "You cannot withdraw from stream");
@@ -137,9 +171,12 @@ contract Streaming {
 
     }
 
+    /**
+     * To close an existing stream
+     * @param _streamId StreamId of stream to close
+     */
     function closeStream(uint256 _streamId) public onlyOwnerOrSender(streamInfo[_streamId].sender) returns(uint256){
         Stream memory streamToClose = streamInfo[_streamId];
-        // require(msg.sender == streamToClose.sender); // use this -> onlyOwnerOrSender(streamInfo[_streamId].sender)
         require(block.timestamp >= streamToClose.stopTime, "Stream duration is not completed");
         require(streamToClose.isOpen, "Stream is already closed");
 
@@ -167,6 +204,10 @@ contract Streaming {
         return _streamId;
     }
 
+    /**
+     * To pause a stream
+     * @param _pause bool indicating whther stream is paused or not
+     */
     function pauseStream(bool _pause) public onlyOwner{
         // require(msg.sender == owner, "Not-Authorised"); // change this to a onlyOwner modifier
         require(_pause != paused, "The same value cannot be set twice");
@@ -174,6 +215,11 @@ contract Streaming {
         emit StreamPaused(msg.sender, _pause);
     }
 
+    /**
+     * To change the recipient of the stream
+     * @param _streamId Id of the required stream
+     * @param newReceiver Address of the new recipient
+     */
     function changeStreamReceipient(uint256 _streamId, address newReceiver) public onlyOwner returns(address){
         Stream memory streamDet = streamInfo[_streamId];
         require(streamDet.stopTime > block.timestamp, "Stream has ended");
@@ -188,6 +234,13 @@ contract Streaming {
         return streamInfo[_streamId].receiver;
     }
 
+    /**
+     * To create a batch of streams all at once
+     * @param receiver list of recipients
+     * @param deposit deposits of each recipient
+     * @param duration duration of each stream listed respectively
+     * @param token tokens deposited
+     */
     function batchCreateStream(address[] memory receiver, uint256[] memory deposit, uint256[] memory duration, address[] memory token) external onlyOwner returns(uint256[] memory streamIds){
         require(receiver.length == deposit.length, "input mismatch-1");
         require(receiver.length == duration.length, "input mismatch-2");
@@ -199,6 +252,11 @@ contract Streaming {
         }
     }
 
+    /**
+     * TO extend the stop time of multiple streams 
+     * @param streamId list of required Ids to extend
+     * @param newStopTime respective new stop times
+     */
     function batchExtendStream(uint256[] memory streamId, uint256[] memory newStopTime) external onlyOwner{
         require(streamId.length == newStopTime.length,"invalid length");
         uint256 length = streamId.length;
@@ -208,16 +266,11 @@ contract Streaming {
         }
     }
 
-
-    function batchPauseStream(bool[] memory _pause) external onlyOwner{
-        uint256 length = _pause.length;
-
-        for(uint256 i=0; i<length; i++){
-            pauseStream(_pause[i]);
-        }
-    }
-
-    // add batch for close
+ 
+    /**
+     * Closes an open stream
+     * @param streamIds ids of required streams to close
+     */
     function batchCloseStream(uint256[] memory streamIds) external onlyOwner{
         require(streamIds.length != 0, "Invalid ids");
         uint256 length = streamIds.length;
@@ -226,7 +279,13 @@ contract Streaming {
             closeStream(streamIds[i]);
         }
     }
-    // add batch for changing receipient too
+
+
+    /**
+     * To change recipients for already existing streams 
+     * @param streamIds ids of required streams to shange recipient for
+     * @param newReceipients list of new recipients to set into streams
+     */
     function batchChangeReceipient(uint256[] memory streamIds, address[] memory newReceipients) external onlyOwner{
         require(streamIds.length != 0, "Invalid iDs");
         require(streamIds.length == newReceipients.length,"array length mismatch");
