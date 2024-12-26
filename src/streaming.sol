@@ -2,8 +2,6 @@
 pragma solidity 0.8.26;
 
 import {IERC20} from "./interface/IERC20.sol";
-import {IWETH} from "./interface/IWETH.sol";
-
 
 /**
  * @title Mi Streaming contract
@@ -24,8 +22,6 @@ contract Streaming {
     
     address NATIVE_TOKEN = address(0);
 
-    IWETH immutable weth;
-
     struct Stream {
         address sender;
         address receiver;
@@ -41,8 +37,7 @@ contract Streaming {
     mapping(uint256 streamId => Stream stream) streamInfo;
     uint256 nextStreamId;
 
-    constructor(address _weth) {
-        weth = IWETH(_weth);
+    constructor() {
         owner = msg.sender;
     }
 
@@ -69,6 +64,8 @@ contract Streaming {
         require(msg.sender == owner || msg.sender == _sender, "NotAuthorised");
         _;
     }
+
+    // receive() external payable{}
 
     /**
      * A funtion to create stream
@@ -102,7 +99,7 @@ contract Streaming {
 
         if (_token == NATIVE_TOKEN){
             require(msg.value==_deposit,"invalid deposit");
-            weth.deposit{value: _deposit}();
+
         }else{
             IERC20(_token).transferFrom(msg.sender,address(this), _deposit);
         }
@@ -153,7 +150,6 @@ contract Streaming {
         streamTowith.deposit -= amount;
 
         if(token == NATIVE_TOKEN){
-            weth.withdraw(amount);
            (bool ok,) = payable(streamTowith.receiver).call{value: amount}("");
            require(ok);
         }else{
@@ -295,5 +291,9 @@ contract Streaming {
         for(uint256 i=0; i<length; i++){
             changeStreamReceipient(streamIds[i], newReceipients[i]);
         }
+    }
+
+    function getStreamInfo(uint256 streamId) external view returns(Stream memory streaam){
+        streaam = streamInfo[streamId];
     }
 }
