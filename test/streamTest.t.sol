@@ -13,6 +13,7 @@ contract StreamTest is Test{
 
     function createStreamm() internal returns(uint256){
         address receiver = address(0xabc);
+        vm.warp(1 days);
         uint256 streamidd = stream.createStream{value: 20e6}(receiver, 20e6, 10 days, address(0));
     }
 
@@ -40,5 +41,18 @@ contract StreamTest is Test{
 
         assertEq(currentStopTime, newStopTime);
         assertLt(newRate,oldRate);
+    }
+
+    function testWithdrawStream() public {
+        uint256 id = createStreamm();
+        uint256 oldDeposit = stream.getStreamInfo(id).deposit;
+        vm.warp(5 days);
+        vm.prank(address(0xabc));
+        uint256 withdrawn = stream.withdrawStream(id, 10e6, address(0));
+        uint256 expectedBal = oldDeposit - withdrawn;
+
+        assertEq(expectedBal,stream.getStreamInfo(id).deposit);
+        assertEq(withdrawn, 10e6);
+        assertEq(expectedBal, address(stream).balance);
     }
 }

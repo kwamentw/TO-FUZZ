@@ -142,7 +142,7 @@ contract Streaming {
     function withdrawStream(uint256 _streamId, uint256 amount, address token) public isNotPaused returns(uint256 amountWithdrawn){
         Stream memory streamTowith = streamInfo[_streamId];
         require(msg.sender == streamTowith.receiver, "You cannot withdraw from stream");
-        require(streamTowith.stopTime < block.timestamp, "stream ended");
+        require(streamTowith.stopTime > block.timestamp, "stream ended");
         require(amount <= streamTowith.deposit,"Not enough balance");
 
         //TODO i think we should add a fee mechanism to add some regulation on early withdrawal
