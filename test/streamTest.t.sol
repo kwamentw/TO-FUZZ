@@ -55,4 +55,29 @@ contract StreamTest is Test{
         assertEq(withdrawn, 10e6);
         assertEq(expectedBal, address(stream).balance);
     }
+
+    function testCloseStream() public {
+        uint256 id = createStreamm();
+        vm.warp(30 days);
+        stream.closeStream(id);
+        assertFalse(stream.getStreamInfo(id).isOpen);
+        assertEq(address(stream).balance, 0);
+    }
+
+    function testUserNotAuthorisedToCloseStream() public {
+        uint256 id = createStreamm();
+        vm.warp(30 days);
+        vm.expectRevert();
+        // address 55 is not authorised to close stream so watch it revert
+        vm.prank(address(55));
+        stream.closeStream(id);
+    }
+
+    function testCannotCloseBecauseStreamHasNotEnded() public{
+        uint256 id = createStreamm();
+        vm.warp(3 days);
+        vm.expectRevert();
+        // stream will end after 10 days so watch it revert because the timestamp is currently at 3 days
+        stream.closeStream(id);
+    }
 }
