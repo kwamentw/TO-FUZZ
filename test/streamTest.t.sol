@@ -89,4 +89,27 @@ contract StreamTest is Test{
         vm.expectRevert();
         createStreamm();
     }
+
+    function testChangeStreamReceipient() public {
+        uint256 id = createStreamm();
+        assertEq(stream.getStreamInfo(id).receiver, address(0xabc));
+
+        stream.changeStreamReceipient(id, address(0xcba));
+        assertEq(stream.getStreamInfo(id).receiver, address(0xcba));
+    }
+
+    function testRevertChangeStreamReceipientWhenStreamIsClosed() public{
+        uint256 id= createStreamm();
+        vm.warp(20 days);
+        stream.closeStream(id);
+        vm.expectRevert();
+        stream.changeStreamReceipient(id, address(0xcba));
+    }
+
+    function testChangeStreamReceiverRevertWhenStopTimeisPassed() public{
+        uint256 id = createStreamm();
+        vm.warp(45 days);
+        vm.expectRevert();
+        stream.changeStreamReceipient(id, address(0xcba));
+    }
 }
