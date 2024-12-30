@@ -80,4 +80,13 @@ contract StreamTest is Test{
         // stream will end after 10 days so watch it revert because the timestamp is currently at 3 days
         stream.closeStream(id);
     }
+
+    function testPauseStream() public{
+        uint256 id = createStreamm();
+        stream.pauseStream(true);
+        assertTrue(stream.paused());
+
+        vm.expectRevert();
+        createStreamm();
+    }
 }

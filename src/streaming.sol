@@ -17,7 +17,7 @@ contract Streaming {
     event StreamPaused(address, bool);
     event StreamReceipientChanged(address oldReceipient, address newReceipient);
 
-    bool paused;
+    bool public paused;
     address owner;
     
     address NATIVE_TOKEN = address(0);
