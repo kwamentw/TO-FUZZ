@@ -82,12 +82,22 @@ contract StreamTest is Test{
     }
 
     function testPauseStream() public{
-        uint256 id = createStreamm();
         stream.pauseStream(true);
         assertTrue(stream.paused());
 
         vm.expectRevert();
         createStreamm();
+    }
+
+    function testRevertOnlyOwnerCanPauseStream() public{
+        vm.prank(address(0xabc));
+        vm.expectRevert();
+        stream.pauseStream(true);
+    }
+
+    function testRevertOnSameValueSet() public{
+        vm.expectRevert();
+        stream.pauseStream(false);
     }
 
     function testChangeStreamReceipient() public {
