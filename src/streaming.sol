@@ -98,7 +98,7 @@ contract Streaming {
         });
 
         if (_token == NATIVE_TOKEN){
-            require(msg.value==_deposit,"invalid deposit");
+            require(msg.value>=_deposit,"invalid deposit");
 
         }else{
             IERC20(_token).transferFrom(msg.sender,address(this), _deposit);
@@ -237,7 +237,7 @@ contract Streaming {
      * @param duration duration of each stream listed respectively
      * @param token tokens deposited
      */
-    function batchCreateStream(address[] memory receiver, uint256[] memory deposit, uint256[] memory duration, address[] memory token) external onlyOwner returns(uint256[] memory streamIds){
+    function batchCreateStream(address[] memory receiver, uint256[] memory deposit, uint256[] memory duration, address[] memory token) external payable onlyOwner returns(uint256[] memory streamIds){
         require(receiver.length == deposit.length, "input mismatch-1");
         require(receiver.length == duration.length, "input mismatch-2");
         require(duration.length == token.length,"input mismatch-3");

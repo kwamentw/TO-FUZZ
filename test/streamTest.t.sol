@@ -6,6 +6,11 @@ import {Streaming} from "../src/streaming.sol";
 
 contract StreamTest is Test{
     Streaming stream;
+    address NATIVE_TOKEN = address(0);
+    address[] public receivers = [address(0xabc), address(0xcba), address(0xbca), address(0xacb)];
+    uint256[] public deposits = [12e6,23454333,34e12,3.3333e7];
+    uint256[] public durations = [5 days, 10 days, 7 days, 11 days];
+    address[] public tokens = [NATIVE_TOKEN, NATIVE_TOKEN, NATIVE_TOKEN, NATIVE_TOKEN];
 
     function setUp() public {
         stream = new Streaming();
@@ -121,5 +126,20 @@ contract StreamTest is Test{
         vm.warp(45 days);
         vm.expectRevert();
         stream.changeStreamReceipient(id, address(0xcba));
+    }
+
+    function batchCreateStreamm() private returns(uint256[] memory ids){
+        // address[] memory receivers = [address(0xabc), address(0xcba), address(0xbca), address(0xacb)];
+        // uint256[] memory deposits = [12e6,23454333,34e12,3.3333e7];
+        // uint256[] memory durations = [5 days, 10 days, 7 days, 11 days];
+        // address[] memory tokens = [NATIVE_TOKEN, NATIVE_TOKEN, NATIVE_TOKEN, NATIVE_TOKEN, NATIVE_TOKEN];
+
+        ids = stream.batchCreateStream{value: 3.41e13}(receivers, deposits, durations, tokens);
+
+    }
+
+    function testBatchCreateStream() public{
+        uint256[] memory ids = batchCreateStreamm();
+        assertNotEq(ids.length, 0);
     }
 }
