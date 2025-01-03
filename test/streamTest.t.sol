@@ -4,6 +4,11 @@ pragma solidity 0.8.26;
 import {Test} from "forge-std/Test.sol";
 import {Streaming} from "../src/streaming.sol";
 
+/**
+ * @title Stream Test
+ * @author 4B
+ * @notice This a test unit test of all the functions in stream.sol
+ */
 contract StreamTest is Test{
     Streaming stream;
     address NATIVE_TOKEN = address(0);
