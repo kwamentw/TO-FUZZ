@@ -39,6 +39,7 @@ contract Streaming {
 
     constructor() {
         owner = msg.sender;
+        nextStreamId=0;
     }
 
     /**
@@ -103,11 +104,12 @@ contract Streaming {
         }else{
             IERC20(_token).transferFrom(msg.sender,address(this), _deposit);
         }
+        uint256 currId = nextStreamId;
 
         emit StreamCreated(nextStreamId, msg.sender, _receiver, duration);
         nextStreamId++;
 
-        return nextStreamId -1; // returns the current streamID
+        return currId; // returns the current streamID
     }
 
     /**
@@ -237,13 +239,13 @@ contract Streaming {
      * @param duration duration of each stream listed respectively
      * @param token tokens deposited
      */
-    function batchCreateStream(address[] memory receiver, uint256[] memory deposit, uint256[] memory duration, address[] memory token) external payable onlyOwner returns(uint256[] memory streamIds){
+    function batchCreateStream(address[4] memory receiver, uint256[4] memory deposit, uint256[4] memory duration, address[4] memory token) external payable onlyOwner returns(uint256[4] memory streamIds){
         require(receiver.length == deposit.length, "input mismatch-1");
         require(receiver.length == duration.length, "input mismatch-2");
         require(duration.length == token.length,"input mismatch-3");
 
         uint256 length = receiver.length;
-        for(uint256 i=0; i<length; i++){
+        for(uint256 i=0; i<receiver.length; i++){
             streamIds[i] = _createStream(receiver[i], deposit[i], duration[i], token[i]);
         }
     }
