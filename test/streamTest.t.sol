@@ -171,4 +171,27 @@ contract StreamTest is Test{
         uint256[4] memory ids = batchCreateStreamm();
         assertNotEq(ids.length, 0);
     }
+
+    function testBatchExtendStream() public{
+        batchCreateStreamm();
+
+        uint256[] memory id = [uint256(0),uint256(1),uint256(2)];
+        // id[0]=0;
+        // id[1]=1;
+        // id[2]=2;
+
+        uint256[] memory time;
+        time[0]= uint256(7 days);
+        time[1]=uint256(5 days);
+        time[2]=uint256(8 days);
+
+        stream.batchExtendStream(id,time);
+    }
+
+    function testCloseStream() public{
+        batchCreateStreamm();
+        uint256[] memory ids = [uint256(0),uint256(1),uint256(2)];
+        stream.closeStream(ids);
+
+    }
 }
