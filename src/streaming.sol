@@ -295,6 +295,10 @@ contract Streaming {
         }
     }
 
+    /**
+     * To get stream info of specified ID
+     * @param streamId Id of stream
+     */
     function getStreamInfo(uint256 streamId) external view returns(Stream memory streaam){
         streaam = streamInfo[streamId];
     }
