@@ -188,10 +188,17 @@ contract StreamTest is Test{
         stream.batchExtendStream(id,time);
     }
 
-    function testCloseStream() public{
+    function testCloseStreamm() public{
         batchCreateStreamm();
         uint256[] memory ids = [uint256(0),uint256(1),uint256(2)];
         stream.closeStream(ids);
 
+    }
+
+    function testBatchChangeRecipient() public{
+        batchCreateStreamm();
+         uint256[] memory ids = [uint256(0),uint256(1),uint256(2)];
+         uint256[] memory receivers = [address(111),address(222),address(333)];
+         stream.batchChangeReceipient(ids, receivers);
     }
 }
