@@ -10,8 +10,8 @@ import {Streaming} from "../src/streaming.sol";
  * @notice This a test unit test of all the functions in stream.sol
  */
 contract StreamTest is Test{
-    Streaming stream;
-    address NATIVE_TOKEN = address(0);
+    Streaming stream; //Streaimng contract
+    address NATIVE_TOKEN = address(0); // Native ETH
     // address[] public receivers = [address(0xabc), address(0xcba), address(0xbca), address(0xacb)];
     // uint256[] public deposits = [12e6,23454333,34e12,3.3333e7];
     // uint256[] public durations = [5 days, 10 days, 7 days, 11 days];
@@ -21,12 +21,18 @@ contract StreamTest is Test{
         stream = new Streaming();
     }
 
+    /**
+     * Helper function to create stream
+     */
     function createStreamm() internal returns(uint256){
         address receiver = address(0xabc);
         vm.warp(1 days);
         stream.createStream{value: 20e6}(receiver, 20e6, 10 days, address(0));
     }
 
+    /**
+     * Testing create stream to see whether it works
+     */
     function testCreateStreamm() public {
         uint256 streamidd = stream.createStream{value: 20e6}(address(0xabc), 20e6, 10 days, address(0));
         address receiver = stream.getStreamInfo(streamidd).receiver;
@@ -34,12 +40,18 @@ contract StreamTest is Test{
         assertEq(receiver, address(0xabc));
     }
 
+    /**
+     * Test to revert on invalid stream deposits
+     */
     function testInvalidStreamDeposit() public {
         vm.expectRevert();
         // uint256 streamidd = stream.createStream{value: 0}(address(0xabc), 20e6, 10 days, address(0));        
        stream.createStream{value: 20e7}(address(0xabc), 20e6, 10 days, address(0));
     }
 
+    /**
+     * Test whether stream can be extended
+     */
     function testExtendStream() public {
         uint256 id = createStreamm();
         uint256 newStopTime = 20 days;
@@ -53,6 +65,9 @@ contract StreamTest is Test{
         assertLt(newRate,oldRate);
     }
 
+    /**
+     * Test withdrawal of deposit from stream
+     */
     function testWithdrawStream() public {
         uint256 id = createStreamm();
         uint256 oldDeposit = stream.getStreamInfo(id).deposit;
@@ -66,6 +81,9 @@ contract StreamTest is Test{
         assertEq(expectedBal, address(stream).balance);
     }
 
+    /**
+     * Test whether stream can be closed
+     */
     function testCloseStream() public {
         uint256 id = createStreamm();
         vm.warp(30 days);
@@ -74,6 +92,9 @@ contract StreamTest is Test{
         assertEq(address(stream).balance, 0);
     }
 
+    /**
+     * Test revert on non-authorised user to close stream
+     */
     function testUserNotAuthorisedToCloseStream() public {
         uint256 id = createStreamm();
         vm.warp(30 days);
@@ -83,6 +104,9 @@ contract StreamTest is Test{
         stream.closeStream(id);
     }
 
+    /**
+     * TEst revert on trying to close unended stream
+     */
     function testCannotCloseBecauseStreamHasNotEnded() public{
         uint256 id = createStreamm();
         vm.warp(3 days);
@@ -91,6 +115,9 @@ contract StreamTest is Test{
         stream.closeStream(id);
     }
 
+    /**
+     * Test to check whether user can pause stream
+     */
     function testPauseStream() public{
         stream.pauseStream(true);
         assertTrue(stream.paused());
@@ -99,17 +126,26 @@ contract StreamTest is Test{
         createStreamm();
     }
 
+    /**
+     * Test to cofirm non-authorised user cannot pause stream
+     */
     function testRevertOnlyOwnerCanPauseStream() public{
         vm.prank(address(0xabc));
         vm.expectRevert();
         stream.pauseStream(true);
     }
 
+    /**
+     * Test to revert when the same pause status is issued
+     */
     function testRevertOnSameValueSet() public{
         vm.expectRevert();
         stream.pauseStream(false);
     }
 
+   /**
+    * Test to see whether admin can change stream recipient
+    */
     function testChangeStreamReceipient() public {
         uint256 id = createStreamm();
         assertEq(stream.getStreamInfo(id).receiver, address(0xabc));
@@ -118,6 +154,9 @@ contract StreamTest is Test{
         assertEq(stream.getStreamInfo(id).receiver, address(0xcba));
     }
 
+   /**
+    * Test to revert upon trying to change recipient when stream is closed
+    */
     function testRevertChangeStreamReceipientWhenStreamIsClosed() public{
         uint256 id= createStreamm();
         vm.warp(20 days);
@@ -126,6 +165,9 @@ contract StreamTest is Test{
         stream.changeStreamReceipient(id, address(0xcba));
     }
 
+    /**
+     * Test to revert when trying to change recipient and stop time is passed
+     */
     function testChangeStreamReceiverRevertWhenStopTimeisPassed() public{
         uint256 id = createStreamm();
         vm.warp(45 days);
