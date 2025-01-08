@@ -175,6 +175,9 @@ contract StreamTest is Test{
         stream.changeStreamReceipient(id, address(0xcba));
     }
 
+    /**
+     * helper function to create a bunch of streams at once
+     */
     function batchCreateStreamm() private returns(uint256[4] memory ids) {
         // address[] memory receivers;
         // receivers[0] = address(0xabc);
@@ -209,11 +212,17 @@ contract StreamTest is Test{
         
     }
 
+    /**
+     * Test to see whether batch create stream works
+     */
     function testBatchCreateStream() public{
         uint256[4] memory ids = batchCreateStreamm();
         assertNotEq(ids.length, 0);
     }
 
+    /**
+     * Test to see whether numerous streams can be extended at once 
+     */
     function testBatchExtendStream() public{
         batchCreateStreamm();
 
@@ -230,6 +239,9 @@ contract StreamTest is Test{
         stream.batchExtendStream(id,time);
     }
 
+    /**
+     * For testing whether authorised users can close stream
+     */
     function testCloseStreamm() public{
         batchCreateStreamm();
         uint256[] memory ids = [uint256(0),uint256(1),uint256(2)];
@@ -237,6 +249,9 @@ contract StreamTest is Test{
 
     }
 
+    /**
+     * For testing batch change recipient
+     */
     function testBatchChangeRecipient() public{
         batchCreateStreamm();
          uint256[] memory ids = [uint256(0),uint256(1),uint256(2)];
