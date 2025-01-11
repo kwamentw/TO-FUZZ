@@ -175,6 +175,19 @@ contract StreamTest is Test{
         stream.changeStreamReceipient(id, address(0xcba));
     }
 
+    ////////////// stateless fuzz test //////////////////
+
+    function testFuzzCreateStream(uint256 amount, uint256 dayss) public {
+        deal(address(this), amount);
+        vm.assume(amount < 280563249498847729173030557215992282774575367577225170497693195048799241327);
+        vm.assume(amount != 0);
+        dayss = bound(dayss,1,365);
+        uint256 streamidd = stream.createStream{value: amount}(address(0xabc), amount, dayss, address(0));
+        address receiver = stream.getStreamInfo(streamidd).receiver;
+        assertEq(stream.getStreamInfo(streamidd).sender, address(this));
+        assertEq(receiver, address(0xabc));
+    }
+
     /**
      * helper function to create a bunch of streams at once
      */
