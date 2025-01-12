@@ -188,6 +188,16 @@ contract StreamTest is Test{
         assertEq(receiver, address(0xabc));
     }
 
+    function testFuzzExtendStream(uint256 newStopTime) public{
+        uint256 id = createStreamm();
+        newStopTime = bound(newStopTime,1,365);
+        newStopTime += stream.getStreamInfo(id).stopTime;
+        uint256 oldTime = stream.getStreamInfo(id).stopTime;
+        stream.extendStream(id,newStopTime);
+        assertEq(stream.getStreamInfo(id).stopTime, newStopTime);
+        assertLt(oldTime,stream.getStreamInfo(id).stopTime);
+    }
+
     /**
      * helper function to create a bunch of streams at once
      */
