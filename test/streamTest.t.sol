@@ -27,7 +27,7 @@ contract StreamTest is Test{
     function createStreamm() internal returns(uint256){
         address receiver = address(0xabc);
         vm.warp(1 days);
-        stream.createStream{value: 20e6}(receiver, 20e6, 10 days, address(0));
+        stream.createStream{value: 200e6}(receiver, 200e6, 10 days, address(0));
     }
 
     /**
@@ -196,6 +196,15 @@ contract StreamTest is Test{
         stream.extendStream(id,newStopTime);
         assertEq(stream.getStreamInfo(id).stopTime, newStopTime);
         assertLt(oldTime,stream.getStreamInfo(id).stopTime);
+    }
+
+    function testFuzzWithdrawStream(uint256 amount) public {
+        uint256 id = createStreamm();
+        amount = bound(amount,1,200e6);
+        vm.prank(address(0xabc));
+        stream.withdrawStream(id,amount,address(0));
+        uint256 bal = address(0xabc).balance;
+        assertGt(bal, 0);
     }
 
     /**
