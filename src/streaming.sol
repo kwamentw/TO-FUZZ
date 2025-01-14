@@ -35,7 +35,7 @@ contract Streaming {
     }
 
     mapping(uint256 streamId => Stream stream) streamInfo;
-    uint256 nextStreamId;
+    uint256 public nextStreamId;
 
     constructor() {
         owner = msg.sender;

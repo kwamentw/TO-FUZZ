@@ -21,7 +21,8 @@ contract StreamTestHandler is Test{
      * create stream handler
      */
     function createStream(uint256 amount, uint256 duration) public{
-        amount = bound(amount,0,365);
+        duration = bound(duration,1,365);
+        amount = bound(amount, 1, type(uint128).max);
         stream.createStream{value: amount}(receiver,amount,duration,address(0));
     }
 
@@ -30,6 +31,7 @@ contract StreamTestHandler is Test{
      */
     function extendStream(uint256 newDate, uint256 ids) public{
         vm.assume(newDate < type(uint64).max);
+        vm.assume(newDate != 0);
         stream.extendStream(ids, newDate);
     }
 
@@ -37,8 +39,15 @@ contract StreamTestHandler is Test{
      * withdraw from stream handler
      */
     function withdrawStream(uint256 amount) public {
-        uint256 ids;//trye to create streams and bound this test to them
+        uint256 ids = stream.nextStreamId();
+        if(ids>0){
+            ids = ids-1;
+        }else{
+            revert("No stream added");
+        }
         vm.assume(amount<type(uint64).max);
+        address receipient = stream.getStreamInfo(ids).receiver;
+        vm.prank(receipient);
         stream.withdrawStream(ids, amount, address(0));
     }
 
