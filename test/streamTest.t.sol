@@ -207,15 +207,6 @@ contract StreamTest is Test{
         assertGt(bal, 0);
     }
 
-    //////////////////////// Stateful fuzz test ///////////////////////////
-    function invariant_noOfStreamsShouldBeEqualToCurrentID() public{}
-
-    function invariant_currentBalShouldBeGTEStreamBal() public{}
-
-    function invariant_NextStreamIDShouldGtCurrentStreamId() public{}
-
-    function invariant_totalAmtDepositedInStreamsEqualbalOfContract() public{}
-
 
     /**
      * helper function to create a bunch of streams at once

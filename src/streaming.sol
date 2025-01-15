@@ -36,6 +36,8 @@ contract Streaming {
 
     mapping(uint256 streamId => Stream stream) streamInfo;
     uint256 public nextStreamId;
+    uint256 public totalNoOfStreams; // total number of streams opened
+    uint256 public totalDeposited; //Total amount deposited in streams
 
     constructor() {
         owner = msg.sender;
@@ -108,6 +110,8 @@ contract Streaming {
 
         emit StreamCreated(nextStreamId, msg.sender, _receiver, duration);
         nextStreamId++;
+        totalNoOfStreams++;
+        totalDeposited += _deposit;
 
         return currId; // returns the current streamID
     }
