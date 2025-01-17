@@ -122,10 +122,10 @@ contract Streaming {
      * @param newStopTime The new stop time of stream
      */
     function extendStream( uint256 _streamId, uint256 newStopTime) public isNotPaused onlyOwnerOrSender(streamInfo[_streamId].sender) {
-        require(streamInfo[_streamId].stopTime > block.timestamp, "stream has already ended");
+        require(streamInfo[_streamId].stopTime <= block.timestamp, "stream has already ended");
         require(streamInfo[_streamId].stopTime < newStopTime, "This is no extension");
         // require(streamInfo[_streamId].sender == msg.sender,"Unauthorised");
-        require(streamInfo[_streamId].isOpen, "Stream is closed");
+        // require(streamInfo[_streamId].isOpen, "Stream is closed");
 
         Stream memory extStream = streamInfo[_streamId];
 

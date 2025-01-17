@@ -23,28 +23,46 @@ contract StreamFuzzTest is Test{
     /**
      * Number of streams should be equal to current stream id
      */
-    function invariant_noOfStreamsShouldBeEqualToCurrentID() public view{
-        assertEq(streamm.nextStreamId() + 1, streamm.totalNoOfStreams());
+    function invariant_NextIDShouldGreaterThannoOfStreams() public view{
+        assertGt(streamm.nextStreamId() + 1, streamm.totalNoOfStreams());
     }
 
     /**
-     * Current bal should be greater than stream deposited bal
+     * Current bal should be less than total stream deposited bal
+     * It is less than because when tokens are being withdrawed from the stream total deposit does not reduce
      */
-    function invariant_currentBalShouldBeGTEStreamBal() public view{
-        assertGe(address(streamm).balance, streamm.totalDeposited());
+    function invariant_currentBalShouldBeLTEStreamBal() public view{
+        assertLe(address(streamm).balance, streamm.totalDeposited());
     }
 
     /**
      * Next streamID should be greater than current stream id
      */
-    function invariant_NextStreamIDShouldGtCurrentStreamId() public view {
-        assertGe(streamm.nextStreamId(), streamm.totalNoOfStreams()-1);
+    function invariant_totalNoStreamsShouldEqCurrentStreamId() public view {
+        assertEq(streamm.nextStreamId(), streamm.totalNoOfStreams());
     }
 
     /**
      * Stream contract balance should be greater than 0
      */
     function invariant_totalBalShldGtZero() public view{
-        assertLe(address(streamm).balance,0);
+        assertGe(address(streamm).balance,0);
+    }
+
+    //test handler
+    function testHandlerCreateStream() public {
+        handler.createStream(101e6, 4 days);
+    }
+
+    function testHandlerExtendStreamm() public {
+        // vm.warp(1 days);
+        uint256 id = handler.createStream(101e6, 4 days);
+        handler.extendStream(id,10 days);
+    }
+
+    function testHandlerWithdrawStream() public {
+        uint256 id = handler.createStream(101e6, 4 days);
+        handler.withdrawStream(100e6);
+
     }
 }

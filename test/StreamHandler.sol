@@ -3,6 +3,7 @@ pragma solidity 0.8.26;
 
 import {Test} from "forge-std/Test.sol";
 import {Streaming} from "../src/streaming.sol";
+import {StreamTest} from "./streamTest.t.sol";
 
 /**
  * @title Stream test handler
@@ -11,6 +12,7 @@ import {Streaming} from "../src/streaming.sol";
  */
 contract StreamTestHandler is Test{
     Streaming stream; //stream contract
+    StreamTest test;
     address receiver = address(0xabc); // address of stream receiver
 
     constructor(Streaming _stream){
@@ -20,18 +22,20 @@ contract StreamTestHandler is Test{
     /**
      * create stream handler
      */
-    function createStream(uint256 amount, uint256 duration) public{
+    function createStream(uint256 amount, uint256 duration) public returns(uint256 id_){
         duration = bound(duration,1,365);
         amount = bound(amount, 1, type(uint128).max);
-        stream.createStream{value: amount}(receiver,amount,duration,address(0));
+        id_ = stream.createStream{value: amount}(receiver,amount,duration,address(0));
     }
 
     /**
      * extend stream handler
      */
     function extendStream(uint256 newDate, uint256 ids) public{
-        vm.assume(newDate < type(uint64).max);
-        vm.assume(newDate != 0);
+        // vm.assume(newDate < type(uint64).max);
+        // vm.assume(newDate != 0);
+        newDate = bound(newDate,4,type(uint64).max);
+        vm.prank(address(test));
         stream.extendStream(ids, newDate);
     }
 
