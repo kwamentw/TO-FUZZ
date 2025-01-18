@@ -177,6 +177,9 @@ contract StreamTest is Test{
 
     ////////////// stateless fuzz test //////////////////
 
+    /**
+     * Fuzzing amount and days when creating stream
+     */
     function testFuzzCreateStream(uint256 amount, uint256 dayss) public {
         deal(address(this), amount);
         vm.assume(amount < 280563249498847729173030557215992282774575367577225170497693195048799241327);
@@ -188,6 +191,9 @@ contract StreamTest is Test{
         assertEq(receiver, address(0xabc));
     }
 
+    /**
+     * Fuzzing the new stop time when extending stream stop time
+     */
     function testFuzzExtendStream(uint256 newStopTime) public{
         uint256 id = createStreamm();
         newStopTime = bound(newStopTime,1,365);
@@ -198,6 +204,9 @@ contract StreamTest is Test{
         assertLt(oldTime,stream.getStreamInfo(id).stopTime);
     }
 
+    /**
+     * Fuzzing the amount to withdraw from a stream 
+     */
     function testFuzzWithdrawStream(uint256 amount) public {
         uint256 id = createStreamm();
         amount = bound(amount,1,200e6);

@@ -249,7 +249,7 @@ contract Streaming {
         require(duration.length == token.length,"input mismatch-3");
 
         uint256 length = receiver.length;
-        for(uint256 i=0; i<receiver.length; i++){
+        for(uint256 i=0; i<length; i++){
             streamIds[i] = _createStream(receiver[i], deposit[i], duration[i], token[i]);
         }
     }

@@ -6,8 +6,15 @@ import {StdInvariant} from "forge-std/StdInvariant.sol";
 import {Streaming} from "../src/streaming.sol";
 import {StreamTestHandler} from "../test/StreamHandler.sol";
 
+/**
+ * @title Stream Fuzz test
+ * @author 4b
+ * @notice fuzz test for streaming.sol
+ */
 contract StreamFuzzTest is Test{
+    //contract to test
     Streaming streamm;
+    //handler
     StreamTestHandler handler;
 
     function setUp() public{
@@ -49,7 +56,7 @@ contract StreamFuzzTest is Test{
         assertGe(address(streamm).balance,0);
     }
 
-    //test handler
+    //testing fuzz test handler
     function testHandlerCreateStream() public {
         handler.createStream(101e6, 4 days);
     }
