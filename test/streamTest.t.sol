@@ -220,47 +220,47 @@ contract StreamTest is Test{
     /**
      * helper function to create a bunch of streams at once
      */
-    // function batchCreateStreamm() private returns(uint256[4] memory ids) {
-    //     // address[] memory receivers;
-    //     // receivers[0] = address(0xabc);
-    //     // receivers[1] = address(0xcba);
-    //     // receivers[2] = address(0xbca);
-    //     // receivers[3] = address(0xacb);
+    function batchCreateStreamm() private returns(uint256[4] memory ids) {
+        // address[] memory receivers;
+        // receivers[0] = address(0xabc);
+        // receivers[1] = address(0xcba);
+        // receivers[2] = address(0xbca);
+        // receivers[3] = address(0xacb);
 
-    //     // uint256[] memory deposits;
-    //     // deposits[0] = 12e6;
-    //     // deposits[1] = 23454333;
-    //     // deposits[2] = 34e12;
-    //     // deposits[3] = 3.3333e7;
+        // uint256[] memory deposits;
+        // deposits[0] = 12e6;
+        // deposits[1] = 23454333;
+        // deposits[2] = 34e12;
+        // deposits[3] = 3.3333e7;
 
-    //     // uint256[] memory durations;
-    //     // durations[0] = 5 days;
-    //     // durations[1] = 10 days;
-    //     // durations[2] = 7 days;
-    //     // durations[3] = 11 days;
+        // uint256[] memory durations;
+        // durations[0] = 5 days;
+        // durations[1] = 10 days;
+        // durations[2] = 7 days;
+        // durations[3] = 11 days;
 
-    //     // address[] memory tokens;
-    //     // tokens[0]=NATIVE_TOKEN;
-    //     // tokens[1]=NATIVE_TOKEN;
-    //     // tokens[2]=NATIVE_TOKEN;
-    //     // tokens[3]=NATIVE_TOKEN;
+        // address[] memory tokens;
+        // tokens[0]=NATIVE_TOKEN;
+        // tokens[1]=NATIVE_TOKEN;
+        // tokens[2]=NATIVE_TOKEN;
+        // tokens[3]=NATIVE_TOKEN;
 
-    // address[4] memory receivers = [address(0xabc), address(0xcba), address(0xbca), address(0xacb)];
-    // uint256[4] memory deposits = [uint256(12e6),uint256(23454333),uint256(34e12),uint256(3.3333e7)];
-    // uint256[4] memory durations = [uint256(5 days), uint256(10 days), uint256(7 days), uint256(11 days)];
-    // address[4] memory tokens = [NATIVE_TOKEN, NATIVE_TOKEN, NATIVE_TOKEN, NATIVE_TOKEN];
+    address[4] memory receivers = [address(0xabc), address(0xcba), address(0xbca), address(0xacb)];
+    uint256[4] memory deposits = [uint256(12e6),uint256(23454333),uint256(34e12),uint256(3.3333e7)];
+    uint256[4] memory durations = [uint256(5 days), uint256(10 days), uint256(7 days), uint256(11 days)];
+    address[4] memory tokens = [NATIVE_TOKEN, NATIVE_TOKEN, NATIVE_TOKEN, NATIVE_TOKEN];
 
-    // ids = stream.batchCreateStream{value: 34.41e13}(receivers, deposits, durations, tokens);
+    ids = stream.batchCreateStream{value: 34.41e13}(receivers, deposits, durations, tokens);
         
-    // }
+    }
 
     // /**
     //  * Test to see whether batch create stream works
     //  */
-    // function testBatchCreateStream() public{
-    //     uint256[4] memory ids = batchCreateStreamm();
-    //     assertNotEq(ids.length, 0);
-    // }
+    function testBatchCreateStream() public{
+        uint256[4] memory ids = batchCreateStreamm();
+        assertNotEq(ids.length, 0);
+    }
 
     // /**
     //  * Test to see whether numerous streams can be extended at once 
