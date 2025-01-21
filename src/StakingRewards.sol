@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
+/**
+ * @title Staking protocol
+ * @author Solidity by example
+ * @notice a protocol meant to stake rewards 
+ */
 contract StakingRewards {
     IERC20 public immutable stakingToken;
     IERC20 public immutable rewardsToken;
