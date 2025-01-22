@@ -262,24 +262,24 @@ contract StreamTest is Test{
         assertNotEq(ids.length, 0);
     }
 
-    // /**
-    //  * Test to see whether numerous streams can be extended at once 
-    //  */
-    // function testBatchExtendStream() public{
-    //     batchCreateStreamm();
+    /**
+     * Test to see whether numerous streams can be extended at once 
+     */
+    function testBatchExtendStream() public{
+        batchCreateStreamm();
 
-    //     uint256[] memory id = [uint256(0),uint256(1),uint256(2)];
-    //     // id[0]=0;
-    //     // id[1]=1;
-    //     // id[2]=2;
+        uint256[] memory id = [uint256(0),uint256(1),uint256(2)];
+        // id[0]=0;
+        // id[1]=1;
+        // id[2]=2;
 
-    //     uint256[] memory time;
-    //     time[0]= uint256(7 days);
-    //     time[1]=uint256(5 days);
-    //     time[2]=uint256(8 days);
+        uint256[] memory time;
+        time[0]= uint256(7 days);
+        time[1]=uint256(5 days);
+        time[2]=uint256(8 days);
 
-    //     stream.batchExtendStream(id,time);
-    // }
+        stream.batchExtendStream(id,time);
+    }
 
     // /**
     //  * For testing whether authorised users can close stream
