@@ -122,7 +122,7 @@ contract Streaming {
      * @param newStopTime The new stop time of stream
      */
     function extendStream( uint256 _streamId, uint256 newStopTime) public isNotPaused onlyOwnerOrSender(streamInfo[_streamId].sender) {
-        require(streamInfo[_streamId].stopTime <= block.timestamp, "stream has already ended");
+        require(streamInfo[_streamId].stopTime >= block.timestamp, "stream has already ended");
         require(streamInfo[_streamId].stopTime < newStopTime, "This is no extension");
         // require(streamInfo[_streamId].sender == msg.sender,"Unauthorised");
         // require(streamInfo[_streamId].isOpen, "Stream is closed");
@@ -259,7 +259,7 @@ contract Streaming {
      * @param streamId list of required Ids to extend
      * @param newStopTime respective new stop times
      */
-    function batchExtendStream(uint256[] memory streamId, uint256[] memory newStopTime) external onlyOwner{
+    function batchExtendStream(uint256[4] memory streamId, uint256[4] memory newStopTime) external onlyOwner{
         require(streamId.length == newStopTime.length,"invalid length");
         uint256 length = streamId.length;
 
@@ -273,7 +273,7 @@ contract Streaming {
      * Closes an open stream
      * @param streamIds ids of required streams to close
      */
-    function batchCloseStream(uint256[] memory streamIds) external onlyOwner{
+    function batchCloseStreamm(uint256[4] memory streamIds) external onlyOwner{
         require(streamIds.length != 0, "Invalid ids");
         uint256 length = streamIds.length;
 
@@ -288,7 +288,7 @@ contract Streaming {
      * @param streamIds ids of required streams to shange recipient for
      * @param newReceipients list of new recipients to set into streams
      */
-    function batchChangeReceipient(uint256[] memory streamIds, address[] memory newReceipients) external onlyOwner{
+    function batchChangeReceipient(uint256[4] memory streamIds, address[4] memory newReceipients) external onlyOwner{
         require(streamIds.length != 0, "Invalid iDs");
         require(streamIds.length == newReceipients.length,"array length mismatch");
 

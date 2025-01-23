@@ -266,38 +266,38 @@ contract StreamTest is Test{
      * Test to see whether numerous streams can be extended at once 
      */
     function testBatchExtendStream() public{
-        batchCreateStreamm();
-
-        uint256[] memory id = [uint256(0),uint256(1),uint256(2)];
+        uint256[4] memory id = batchCreateStreamm();
         // id[0]=0;
         // id[1]=1;
         // id[2]=2;
 
-        uint256[] memory time;
-        time[0]= uint256(7 days);
-        time[1]=uint256(5 days);
-        time[2]=uint256(8 days);
+        uint256[4] memory time;
+        time[0]= uint256(70 days);
+        time[1]=uint256(50 days);
+        time[2]=uint256(80 days);
+        time[3] = uint256(90 days);
 
+        vm.warp(3);
         stream.batchExtendStream(id,time);
     }
 
-    // /**
-    //  * For testing whether authorised users can close stream
-    //  */
-    // function testBatchCloseStreamm() public{
-    //     batchCreateStreamm();
-    //     uint256[] memory ids = [uint256(0),uint256(1),uint256(2)];
-    //     stream.closeStream(ids);
+    /**
+     * For testing whether authorised users can close stream
+     */
+    function testBatchCloseStreamm() public{
+        uint256[4] memory ids = batchCreateStreamm();
+        vm.warp(365 days);
+        stream.batchCloseStreamm(ids);
 
-    // }
+    }
 
-    // /**
-    //  * For testing batch change recipient
-    //  */
-    // function testBatchChangeRecipient() public{
-    //     batchCreateStreamm();
-    //      uint256[] memory ids = [uint256(0),uint256(1),uint256(2)];
-    //      uint256[] memory receivers = [address(111),address(222),address(333)];
-    //      stream.batchChangeReceipient(ids, receivers);
-    // }
+    /**
+     * For testing batch change recipient
+     */
+    function testBatchChangeRecipient() public{
+        
+         uint256[4] memory ids = batchCreateStreamm();
+         address[4] memory receivers = [address(111),address(222),address(333),address(444)];
+         stream.batchChangeReceipient(ids, receivers);
+    }
 }
