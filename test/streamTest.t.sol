@@ -12,10 +12,6 @@ import {Streaming} from "../src/streaming.sol";
 contract StreamTest is Test{
     Streaming stream; //Streaimng contract
     address NATIVE_TOKEN = address(0); // Native ETH
-    // address[] public receivers = [address(0xabc), address(0xcba), address(0xbca), address(0xacb)];
-    // uint256[] public deposits = [12e6,23454333,34e12,3.3333e7];
-    // uint256[] public durations = [5 days, 10 days, 7 days, 11 days];
-    // address[] public tokens = [NATIVE_TOKEN, NATIVE_TOKEN, NATIVE_TOKEN, NATIVE_TOKEN];
 
     function setUp() public {
         stream = new Streaming();
@@ -221,30 +217,6 @@ contract StreamTest is Test{
      * helper function to create a bunch of streams at once
      */
     function batchCreateStreamm() private returns(uint256[4] memory ids) {
-        // address[] memory receivers;
-        // receivers[0] = address(0xabc);
-        // receivers[1] = address(0xcba);
-        // receivers[2] = address(0xbca);
-        // receivers[3] = address(0xacb);
-
-        // uint256[] memory deposits;
-        // deposits[0] = 12e6;
-        // deposits[1] = 23454333;
-        // deposits[2] = 34e12;
-        // deposits[3] = 3.3333e7;
-
-        // uint256[] memory durations;
-        // durations[0] = 5 days;
-        // durations[1] = 10 days;
-        // durations[2] = 7 days;
-        // durations[3] = 11 days;
-
-        // address[] memory tokens;
-        // tokens[0]=NATIVE_TOKEN;
-        // tokens[1]=NATIVE_TOKEN;
-        // tokens[2]=NATIVE_TOKEN;
-        // tokens[3]=NATIVE_TOKEN;
-
     address[4] memory receivers = [address(0xabc), address(0xcba), address(0xbca), address(0xacb)];
     uint256[4] memory deposits = [uint256(12e6),uint256(23454333),uint256(34e12),uint256(3.3333e7)];
     uint256[4] memory durations = [uint256(5 days), uint256(10 days), uint256(7 days), uint256(11 days)];
@@ -267,10 +239,6 @@ contract StreamTest is Test{
      */
     function testBatchExtendStream() public{
         uint256[4] memory id = batchCreateStreamm();
-        // id[0]=0;
-        // id[1]=1;
-        // id[2]=2;
-
         uint256[4] memory time;
         time[0]= uint256(70 days);
         time[1]=uint256(50 days);
