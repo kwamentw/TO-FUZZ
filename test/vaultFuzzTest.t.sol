@@ -15,9 +15,9 @@ import {ERC20} from "./ERC20Mock.sol";
  * @notice Tesing a vault contract by smartcontractprogrammer
  */
 contract TestVault is Test{
-    ERC20 fakeDai;
-    Vault vault;
-    VaultHandler handler;
+    ERC20 fakeDai;//token
+    Vault vault;//vault to be tested
+    VaultHandler handler;//vault handler for fuzzing
 
     function setUp() public {
         fakeDai = new ERC20("Dai", "FDAI", 18, 100_000);

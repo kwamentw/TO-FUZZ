@@ -258,7 +258,7 @@ interface IERC20 {
         external
         returns (bool);
 }
-//added this so i can use weth
+//added so i can use weth
 interface IWETH is IERC20 {
     function deposit() external payable;
     function withdraw(uint256 amount) external;
