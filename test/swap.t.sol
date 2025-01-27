@@ -6,6 +6,7 @@ import {console2} from "forge-std/console2.sol";
 import {UniswapV3Swap, IERC20, IWETH} from "../src/v3swap.sol";
 import {Test} from "forge-std/Test.sol";
 
+// tokens to be used
 address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
 address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
@@ -57,6 +58,9 @@ contract UniV3SwapTest is StdCheats, Test{
         assertEq(amountOut,daiBalance);
     }
 
+    /**
+     * Testing uniswap single hop
+     */
     function testSingleHopSwapbackToEth() public {
         // depossit and approve the router
         weth.deposit{value:2e18}();
@@ -81,6 +85,9 @@ contract UniV3SwapTest is StdCheats, Test{
         assertGt(daiBalance,0);
     }
 
+    /**
+     * Testing same token swap
+     */
     function testSameTokenSwap() public {
         // deposit and approve router 
         weth.deposit{value: 1e18}();

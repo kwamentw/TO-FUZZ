@@ -27,11 +27,19 @@ contract StakingRewHandler is Test {
 
     ///////////////////////////////// handler functions ///////////////////////////////////
 
+    /**
+     * Setting rewards duration
+     * @param duration duration
+     */
     function setRewardsDuration(uint256 duration) public {
         duration = bound(duration,1,type(uint256).max);
         staking.setRewardsDuration(duration);
     } 
 
+    /**
+     * Staking tokens
+     * @param amountToStake amount of tokens
+     */
     function stake(uint256 amountToStake) public {
         amountToStake = bound(amountToStake,10,90e18);
 
@@ -43,6 +51,10 @@ contract StakingRewHandler is Test {
         staking.stake(amountToStake);
     }
 
+    /**
+     * withdrawing staked tokens
+     * @param amountToWithdraw amount to withdraw
+     */
     function withdraw(uint256 amountToWithdraw) public {
         amountToWithdraw = bound(amountToWithdraw,10,90e18);
         staking.withdraw(amountToWithdraw);
