@@ -17,25 +17,28 @@ contract Streaming {
     event StreamPaused(address, bool);
     event StreamReceipientChanged(address oldReceipient, address newReceipient);
 
-    bool public paused;
-    address owner;
+    bool public paused;//recaord state of protocol whether paused or not 
+    address owner;// owner of the streaming contract
     
-    address NATIVE_TOKEN = address(0);
+    address NATIVE_TOKEN = address(0); //native eth
 
+    /**
+     * @dev Stream properties/details/params
+     */
     struct Stream {
-        address sender;
-        address receiver;
-        uint256 deposit;
-        uint256 ratePerSecond;
-        uint256 startTime;
-        uint256 stopTime;
-        uint256 withdrawn;
-        address token;
-        bool isOpen;
+        address sender; // sender of the stream
+        address receiver;// receiver of amount when stream ends
+        uint256 deposit;// amount deposited into the stream
+        uint256 ratePerSecond; // amount of tokens distributed per second
+        uint256 startTime;// time streaming starts
+        uint256 stopTime;//Time streaming stops
+        uint256 withdrawn;//amount of tokens wothdrawn from stream
+        address token;// address of token streamed
+        bool isOpen;// Is stream opened or closed?
     }
 
-    mapping(uint256 streamId => Stream stream) streamInfo;
-    uint256 public nextStreamId;
+    mapping(uint256 streamId => Stream stream) streamInfo;// stream details or info
+    uint256 public nextStreamId; // The ID of the next stream
     uint256 public totalNoOfStreams; // total number of streams opened
     uint256 public totalDeposited; //Total amount deposited in streams
 
