@@ -10,15 +10,15 @@ import {IERC20} from "./interface/IERC20.sol";
  */
 contract Streaming {
     //// EVENTS
-    event StreamCreated(uint256 streamID, address creator, address receiver, uint256 duratioN );
-    event StreamExtended(uint256 streamID, uint256 newStopTime);
-    event StreamWithdrawnFrom(address receipient, uint256 amount, uint256 streamID);
-    event StreamClosed(uint256 streamId, address sender);
-    event StreamPaused(address, bool);
-    event StreamReceipientChanged(address oldReceipient, address newReceipient);
+    event StreamCreated(uint256 streamID, address creator, address receiver, uint256 duratioN ); //emitted when a stream is created
+    event StreamExtended(uint256 streamID, uint256 newStopTime); //emitted when a stream is invested
+    event StreamWithdrawnFrom(address receipient, uint256 amount, uint256 streamID); // emitted when a stream is withdrawn from
+    event StreamClosed(uint256 streamId, address sender); //emitted when a stream is closed
+    event StreamPaused(address, bool); //emitted when owner pauses stream
+    event StreamReceipientChanged(address oldReceipient, address newReceipient); //emitted when stream receipient is changed
 
-    bool public paused;//recaord state of protocol whether paused or not 
-    address owner;// owner of the streaming contract
+    bool public paused; //recaord state of protocol whether paused or not 
+    address owner; //owner of the streaming contract
     
     address NATIVE_TOKEN = address(0); //native eth
 
@@ -26,21 +26,21 @@ contract Streaming {
      * @dev Stream properties/details/params
      */
     struct Stream {
-        address sender; // sender of the stream
-        address receiver;// receiver of amount when stream ends
-        uint256 deposit;// amount deposited into the stream
-        uint256 ratePerSecond; // amount of tokens distributed per second
-        uint256 startTime;// time streaming starts
-        uint256 stopTime;//Time streaming stops
-        uint256 withdrawn;//amount of tokens wothdrawn from stream
-        address token;// address of token streamed
-        bool isOpen;// Is stream opened or closed?
+        address sender;  //sender of the stream
+        address receiver;  //receiver of amount when stream ends
+        uint256 deposit;  //amount deposited into the stream
+        uint256 ratePerSecond;  //amount of tokens distributed per second
+        uint256 startTime;  //time streaming starts
+        uint256 stopTime;  //Time streaming stops
+        uint256 withdrawn;  //amount of tokens wothdrawn from stream
+        address token;  //address of token streamed
+        bool isOpen;  //Is stream opened or closed?
     }
 
-    mapping(uint256 streamId => Stream stream) streamInfo;// stream details or info
-    uint256 public nextStreamId; // The ID of the next stream
-    uint256 public totalNoOfStreams; // total number of streams opened
-    uint256 public totalDeposited; //Total amount deposited in streams
+    mapping(uint256 streamId => Stream stream) streamInfo;  //stream details or info
+    uint256 public nextStreamId;  //The ID of the next stream
+    uint256 public totalNoOfStreams;  //total number of streams opened
+    uint256 public totalDeposited;  //Total amount deposited in streams
 
     constructor() {
         owner = msg.sender;
