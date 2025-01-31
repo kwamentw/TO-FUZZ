@@ -29,6 +29,7 @@ contract ERC20 is IERC20 {
         _mint(address(this), initialAmount);
     }
 
+    //transfer tokens from msg.sender to recipient
     function transfer(
         address recipient,
         uint256 amount
@@ -39,12 +40,14 @@ contract ERC20 is IERC20 {
         return true;
     }
 
+    //approve tokens on behalf of sender
     function approve(address spender, uint256 amount) external returns (bool) {
         allowance[msg.sender][spender] = amount;
         emit Approval(msg.sender, spender, amount);
         return true;
     }
 
+    // transfer tokens from sender to receiver
     function transferFrom(
         address sender,
         address recipient,
@@ -57,22 +60,26 @@ contract ERC20 is IERC20 {
         return true;
     }
 
+    //mint tokens `to`
     function _mint(address to, uint256 amount) internal {
         balanceOf[to] += amount;
         totalSupply += amount;
         emit Transfer(address(0), to, amount);
     }
 
+    //burn tokens from `from`
     function _burn(address from, uint256 amount) internal {
         balanceOf[from] -= amount;
         totalSupply -= amount;
         emit Transfer(from, address(0), amount);
     }
 
+    //external mint 
     function mint(address to, uint256 amount) external {
         _mint(to, amount);
     }
 
+    // external burn
     function burn(address from, uint256 amount) external {
         _burn(from, amount);
     }

@@ -57,16 +57,19 @@ contract StreamFuzzTest is Test{
     }
 
     //testing fuzz test handler
+    // handler create stream test
     function testHandlerCreateStream() public {
         handler.createStream(101e6, 4 days);
     }
 
+    //handler extend stream test
     function testHandlerExtendStreamm() public {
         // vm.warp(1 days);
         uint256 id = handler.createStream(101e6, 4 days);
         handler.extendStream(id,10 days);
     }
 
+    //Handler withdraw stream test
     function testHandlerWithdrawStream() public {
         uint256 id = handler.createStream(101e6, 4 days);
         handler.withdrawStream(100e6);
