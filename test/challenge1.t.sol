@@ -11,7 +11,7 @@ import {Registry} from "../src/challenge1.sol";
  * @notice A test for the register contract
  */
 contract challenge1test is Test{
-    Registry reg;
+    Registry reg;// registry contract
 
     function setUp() public {
         reg = new Registry();

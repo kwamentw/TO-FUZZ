@@ -12,7 +12,7 @@ import {IERC20, IWETH} from "../src/CPAMM.sol";
  * @notice Testing CPAMM the basic way
  */
 contract  CPAMMTest is Test {
-    CPAMM public cpamm;
+    CPAMM public cpamm; // main contract = constant product AMM
 
     //tokens used 
     address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
