@@ -7,20 +7,30 @@ pragma solidity ^0.8.26;
  * @notice This is just for educational purposes and not production code
  */
 contract Vault {
-    IERC20 public immutable token;
+    IERC20 public immutable token; // token to be deposited
 
-    uint256 public totalSupply;
-    mapping(address => uint256) public balanceOf;
+    uint256 public totalSupply; // total amount of vault tokens supplied or minted
+    mapping(address => uint256) public balanceOf; // balance of depositors
 
     constructor(address _token) {
         token = IERC20(_token);
     }
 
+    /**
+     * Amount of vault tokens minted to user
+     * @param _to receiver
+     * @param _shares amount of vault tokens minted
+     */
     function _mint(address _to, uint256 _shares) private {
         totalSupply += _shares;
         balanceOf[_to] += _shares;
     }
 
+    /**
+     * Burns tokens from address provided
+     * @param _from account to burn from
+     * @param _shares amount of vault tokens to burn
+     */
     function _burn(address _from, uint256 _shares) private {
         totalSupply -= _shares;
         balanceOf[_from] -= _shares;
