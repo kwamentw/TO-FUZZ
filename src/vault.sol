@@ -36,6 +36,10 @@ contract Vault {
         balanceOf[_from] -= _shares;
     }
 
+    /**
+     *  deposits amount into his vault 
+     * @param _amount amount of tokens user wants to deposit
+     */
     function deposit(uint256 _amount) external {
         /*
         a = amount
@@ -58,6 +62,10 @@ contract Vault {
         token.transferFrom(msg.sender, address(this), _amount);
     }
 
+    /**
+     * withdraw from vault 
+     * @param _shares amount of shares to withdraw
+     */
     function withdraw(uint256 _shares) external {
         /*
         a = amount
