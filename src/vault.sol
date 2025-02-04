@@ -84,6 +84,7 @@ contract Vault {
     }
 }
 
+////////////==============ERC20 INTERFACE====================/////////////
 interface IERC20 {
     function totalSupply() external view returns (uint256);
 
